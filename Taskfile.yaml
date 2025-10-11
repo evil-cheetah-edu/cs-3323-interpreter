@@ -1,0 +1,20 @@
+version: '3'
+
+vars:
+    PROJECT_NAME: interpreter
+
+tasks:
+    build:
+        cmds:
+            - |
+              dune build
+    
+    run:
+        cmds:
+            - |
+              dune exec "{{ .PROJECT_NAME }}"
+    
+    test:
+        cmds:
+            - |
+              dune runtest
