@@ -6,4 +6,5 @@ type value =
     | Unit
     | Error
 
+(** Stack that contains program state *)
 type stack = value list
