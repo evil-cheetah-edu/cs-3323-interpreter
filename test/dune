@@ -1,2 +1,4 @@
 (test
-    (name test_interpreter))
+    (name test_runner)
+    (libraries interpreter alcotest)
+    (modules test_utils test_runner))
