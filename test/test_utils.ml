@@ -135,25 +135,73 @@ module TestResolveInt = struct
         check_resolve_int "should return  `0`: Integer  0" (Some   0)  (T.Integer   0);
         check_resolve_int "should return  `6`: Integer  6" (Some   6)  (T.Integer   6);
         check_resolve_int "should return `55`: Integer 55" (Some  55)  (T.Integer  55);
-        check_resolve_int "should return `-1`: Integer -1" (Some (-1)) (T.Integer (-1))
+        check_resolve_int "should return `-1`: Integer -1" (Some (-1)) (T.Integer (-1))        
 
-    let test_integers () =
-        check_resolve_int "should return  `0`: Integer  0" (Some   0)  (T.Integer   0);
-        check_resolve_int "should return  `6`: Integer  6" (Some   6)  (T.Integer   6);
-        check_resolve_int "should return `55`: Integer 55" (Some  55)  (T.Integer  55);
-        check_resolve_int "should return `-1`: Integer -1" (Some (-1)) (T.Integer (-1))
+    let test_booleans () =
+        check_resolve_int "should return `None`: Boolean true"  (None)  (T.Boolean true);
+        check_resolve_int "should return `None`: Boolean false" (None)  (T.Boolean false)
 
-    let test_integers () = ()
+    let test_errors () =
+        check_resolve_int "should return `None`: Error" (None) (T.Error)
 
-    let test_booleans () = ()
+    let test_unit () =
+        check_resolve_int "should return `None`: Unit" (None) (T.Unit)
 
-    let test_errors () = ()
+    let test_one_char_strings_lowercase () =
+        check_resolve_int "should return `None`: String `a`" (None) (T.String "a");
+        check_resolve_int "should return `None`: String `b`" (None) (T.String "b");
+        check_resolve_int "should return `None`: String `c`" (None) (T.String "c");
+        check_resolve_int "should return `None`: String `d`" (None) (T.String "d");
+        check_resolve_int "should return `None`: String `e`" (None) (T.String "e");
+        check_resolve_int "should return `None`: String `f`" (None) (T.String "f");
+        check_resolve_int "should return `None`: String `g`" (None) (T.String "g");
+        check_resolve_int "should return `None`: String `h`" (None) (T.String "h");
+        check_resolve_int "should return `None`: String `i`" (None) (T.String "i");
+        check_resolve_int "should return `None`: String `j`" (None) (T.String "j");
+        check_resolve_int "should return `None`: String `k`" (None) (T.String "k");
+        check_resolve_int "should return `None`: String `l`" (None) (T.String "l");
+        check_resolve_int "should return `None`: String `m`" (None) (T.String "m");
+        check_resolve_int "should return `None`: String `n`" (None) (T.String "n");
+        check_resolve_int "should return `None`: String `o`" (None) (T.String "o");
+        check_resolve_int "should return `None`: String `p`" (None) (T.String "p");
+        check_resolve_int "should return `None`: String `q`" (None) (T.String "q");
+        check_resolve_int "should return `None`: String `r`" (None) (T.String "r");
+        check_resolve_int "should return `None`: String `s`" (None) (T.String "s");
+        check_resolve_int "should return `None`: String `t`" (None) (T.String "t");
+        check_resolve_int "should return `None`: String `u`" (None) (T.String "u");
+        check_resolve_int "should return `None`: String `v`" (None) (T.String "v");
+        check_resolve_int "should return `None`: String `w`" (None) (T.String "w");
+        check_resolve_int "should return `None`: String `x`" (None) (T.String "x");
+        check_resolve_int "should return `None`: String `y`" (None) (T.String "y");
+        check_resolve_int "should return `None`: String `z`" (None) (T.String "z")
 
-    let test_unit () = ()
-
-    let test_one_char_strings_lowercase () = ()
-
-    let test_one_char_strings_uppercase () = ()
+    let test_one_char_strings_uppercase () =
+        check_resolve_int "should return `None`: String `A`" (None) (T.String "A");
+        check_resolve_int "should return `None`: String `B`" (None) (T.String "B");
+        check_resolve_int "should return `None`: String `C`" (None) (T.String "C");
+        check_resolve_int "should return `None`: String `D`" (None) (T.String "D");
+        check_resolve_int "should return `None`: String `E`" (None) (T.String "E");
+        check_resolve_int "should return `None`: String `F`" (None) (T.String "F");
+        check_resolve_int "should return `None`: String `G`" (None) (T.String "G");
+        check_resolve_int "should return `None`: String `H`" (None) (T.String "H");
+        check_resolve_int "should return `None`: String `I`" (None) (T.String "I");
+        check_resolve_int "should return `None`: String `J`" (None) (T.String "J");
+        check_resolve_int "should return `None`: String `K`" (None) (T.String "K");
+        check_resolve_int "should return `None`: String `L`" (None) (T.String "L");
+        check_resolve_int "should return `None`: String `M`" (None) (T.String "M");
+        check_resolve_int "should return `None`: String `N`" (None) (T.String "N");
+        check_resolve_int "should return `None`: String `O`" (None) (T.String "O");
+        check_resolve_int "should return `None`: String `P`" (None) (T.String "P");
+        check_resolve_int "should return `None`: String `Q`" (None) (T.String "Q");
+        check_resolve_int "should return `None`: String `R`" (None) (T.String "R");
+        check_resolve_int "should return `None`: String `S`" (None) (T.String "S");
+        check_resolve_int "should return `None`: String `T`" (None) (T.String "T");
+        check_resolve_int "should return `None`: String `U`" (None) (T.String "U");
+        check_resolve_int "should return `None`: String `V`" (None) (T.String "V");
+        check_resolve_int "should return `None`: String `W`" (None) (T.String "W");
+        check_resolve_int "should return `None`: String `X`" (None) (T.String "X");
+        check_resolve_int "should return `None`: String `Y`" (None) (T.String "Y");
+        check_resolve_int "should return `None`: String `Z`" (None) (T.String "Z")
 end
 
 
@@ -309,7 +357,12 @@ let suites: unit Alcotest.test list = [
     ]);
 
     ("Utils/resolve_int", [
-        Alcotest.test_case "integers" `Quick TestResolveInt.test_integers;
+        Alcotest.test_case "integers"                     `Quick TestResolveInt.test_integers;
+        Alcotest.test_case "booleans"                     `Quick TestResolveInt.test_booleans;
+        Alcotest.test_case "errors"                       `Quick TestResolveInt.test_errors;
+        Alcotest.test_case "unit"                         `Quick TestResolveInt.test_unit;
+        Alcotest.test_case "one char strings (lowercase)" `Quick TestResolveInt.test_one_char_strings_lowercase;
+        Alcotest.test_case "one char strings (uppercase)" `Quick TestResolveInt.test_one_char_strings_uppercase;
     ]);
 
     ("Utils/is_valid_name", [
