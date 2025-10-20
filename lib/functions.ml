@@ -33,3 +33,24 @@ let push (argument: string) (stack: Types.stack): Types.stack =
 
     | _ ->
         Error :: stack
+
+
+
+(** Pop a value from stack [stack].
+    
+    Removes the head of [stack]. If [stack] is empty,
+    returns [[Types.Error]] as the only element.
+
+    Examples:
+    {[
+      [v :: ...rest]  -> rest
+      []              -> [Types.Error]
+    ]}
+
+    @param stack Current stack.
+    @return The updated stack with the parsed value consed at the front.
+*)
+let pop (stack: Types.stack): Types.stack =
+    match stack with
+    | _ :: tail -> tail
+    | []        -> Types.Error :: stack
