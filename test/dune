@@ -2,7 +2,8 @@
     (name test_runner)
     (libraries interpreter alcotest)
     (modules
-        test_utils
-        test_runner
+        test_functions
         test_math
+        test_runner
+        test_utils
     ))
