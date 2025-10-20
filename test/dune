@@ -1,4 +1,8 @@
 (test
     (name test_runner)
     (libraries interpreter alcotest)
-    (modules test_utils test_runner))
+    (modules
+        test_utils
+        test_runner
+        test_math
+    ))
