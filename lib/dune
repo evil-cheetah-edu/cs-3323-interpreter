@@ -1,3 +1,4 @@
 (library
     (name interpreter)
-    (public_name interpreter))
+    (public_name interpreter)
+    (libraries str))
