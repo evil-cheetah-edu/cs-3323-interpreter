@@ -42,6 +42,27 @@ let pp_value = function
     | Types.Error         -> ":error:"
 
 
+
+(** [pp_stack ?separator stack] pretty-prints a [Types.stack] to a string.
+
+    A utility function for converting a [stack] into a readable
+    string representation.
+
+    Each element of the [stack] is converted to a string using the [pp_value]
+    function. These string representations are then concatenated, separated by
+    the specified [separator] string.
+
+    @param separator The optional string to use between elements (defaults = ` `(space)).
+    @param stack The [Types.stack] to to pretty-print.
+    @return A [string] representation of the stack.
+*)
+let rec pp_stack ?(separator = " ") = function
+    | []           -> ""
+    | [ head ]     -> pp_value head
+    | head :: tail -> pp_value head ^ separator ^ pp_stack tail
+
+
+
 (** [is_valid_name variable_name] checks if a string is a legal variable name
     according to the Assignment Specifications.
 
