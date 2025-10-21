@@ -59,7 +59,7 @@ let pp_value = function
 let rec pp_stack ?(separator = " ") = function
     | []           -> ""
     | [ head ]     -> pp_value head
-    | head :: tail -> pp_value head ^ separator ^ pp_stack tail
+    | head :: tail -> pp_value head ^ separator ^ pp_stack ~separator tail
 
 
 
