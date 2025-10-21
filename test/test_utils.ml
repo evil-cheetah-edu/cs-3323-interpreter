@@ -9,6 +9,7 @@ type ('expected_t, 'value_t) test_case = {
 
 module To_Test = struct
     let pp_value = Interpreter.Utils.pp_value
+    let pp_stack = Interpreter.Utils.pp_stack
     let resolve_int = Interpreter.Utils.resolve_int
     let is_valid_name = Interpreter.Utils.is_valid_name
 end
@@ -165,6 +166,277 @@ module TestPPValue = struct
                 );
                 expected = "seD A mASSA noN urNa FaUCibUs BLANDiT. duIS INTERDUM POrtTIToR URNa Ac cuRsuS. sED sED LoBortIS lorem";
                 value    = (T.String "seD A mASSA noN urNa FaUCibUs BLANDiT. duIS INTERDUM POrtTIToR URNa Ac cuRsuS. sED sED LoBortIS lorem");
+            };
+        ]
+        in
+        List.iter run_test tests
+end
+
+
+module TestPPStack = struct
+    type stack_test = {
+        name:      string;
+        expected:  string;
+        value:     T.stack;
+        separator: string option;
+    }
+
+    let check_pp_stack ~name ~expected ~value ?separator () =
+        Alcotest.(check string) name expected (To_Test.pp_stack ?separator value)
+    
+    let run_test { name; expected; value; separator } =
+        check_pp_stack ~name ~expected ~value ?separator ()
+
+    let test_empty_stack () =
+        let tests: stack_test list = [
+            {
+                name      = "should return empty string: Stack []";
+                expected  = "";
+                value     = ([]);
+                separator = None
+            };
+            {
+                name      = "should return empty string: Stack []";
+                expected  = "";
+                value     = ([]);
+                separator = Some "\n"
+            };
+            {
+                name      = "should return empty string: Stack []";
+                expected  = "";
+                value     = ([]);
+                separator = Some ";"
+            };
+            {
+                name      = "should return empty string: Stack []";
+                expected  = "";
+                value     = ([]);
+                separator = Some "--"
+            };
+            {
+                name      = "should return empty string: Stack []";
+                expected  = "";
+                value     = ([]);
+                separator = Some "\t"
+            };
+        ]
+        in
+        List.iter run_test tests
+
+    let test_integers () =
+        let tests: stack_test list = [
+            (* Single Element Stacks *)
+            {
+                name      = "should return `1`: Stack [Integer 1]";
+                expected  = "1";
+                value     = ([T.Integer 1]);
+                separator = None
+            };
+            {
+                name      = "should return `77`: Stack [Integer 77] | separator=`,`";
+                expected  = "77";
+                value     = ([T.Integer 77]);
+                separator = Some ","
+            };
+            {
+                name      = "should return `-42`: Stack [Integer -42] | separator=`:`";
+                expected  = "-42";
+                value     = ([T.Integer (-42)]);
+                separator = Some ":"
+            };
+            {
+                name      = "should return `0`: Stack [Integer 0] | separator=`-`";
+                expected  = "0";
+                value     = ([T.Integer (0)]);
+                separator = Some "-"
+            };
+            {
+                name      = "should return `0`: Stack [Integer -0] | separator=`;`";
+                expected  = "0";
+                value     = ([T.Integer (-0)]);
+                separator = Some ";"
+            };
+            {
+                name      = "should return `1001`: Stack [Integer 1001] | separator=`;;`";
+                expected  = "1001";
+                value     = ([T.Integer (1_001)]);
+                separator = Some ";;"
+            };
+            {
+                name      = "should return `-99`: Stack [Integer -99] | separator=`\\n`(newline)";
+                expected  = "-99";
+                value     = ([T.Integer (-99)]);
+                separator = Some "\n"
+            };
+
+            (* Double Element Stack *)
+            {
+                name      = "should return `0 0`: Stack [Integer 0; Integer 0]";
+                expected  = "0 0";
+                value     = ([T.Integer 0; T.Integer 0]);
+                separator = None
+            };
+            {
+                name      = "should return `0 0`: Stack [Integer -0; Integer -0] | separator=`;`";
+                expected  = "0;0";
+                value     = ([T.Integer (-0); T.Integer (-0)]);
+                separator = Some ";"
+            };
+            {
+                name      = "should return `959595`: Stack [Integer 959; Integer 595] | separator=``";
+                expected  = "959595";
+                value     = ([T.Integer 959; T.Integer 595]);
+                separator = Some ""
+            };
+            {
+                name      = "should return `42--42`: Stack [Integer 42; Integer 42] | separator=`--`";
+                expected  = "42--42";
+                value     = ([T.Integer 42; T.Integer 42]);
+                separator = Some "--"
+            };
+        ]
+        in
+        List.iter run_test tests
+        
+    let test_booleans () =
+        let tests: stack_test list = [
+            {
+                name      = "should return `:true:`: Stack [Boolean true]";
+                expected  = ":true:";
+                value     = ([T.Boolean true]);
+                separator = None
+            };
+            {
+                name      = "should return `:false:`: Stack [Boolean false] | separator=`_-`";
+                expected  = ":false:";
+                value     = ([T.Boolean false]);
+                separator = Some "_-"
+            };
+            {
+                name      = "should return `:false:_-_:true:`: Stack [Boolean false; Boolean true] | separator=`_-_`";
+                expected  = ":false:_-_:true:";
+                value     = ([T.Boolean false; T.Boolean true]);
+                separator = Some "_-_"
+            };
+            {
+                name      = "should return `:true: :true:`: Stack [Boolean true; Boolean true] | separator=` `";
+                expected  = ":true: :true:";
+                value     = ([T.Boolean true; T.Boolean true]);
+                separator = Some " "
+            };
+            {
+                name      = "should return `:false: :false:`: Stack [Boolean false; Boolean false]";
+                expected  = ":false: :false:";
+                value     = ([T.Boolean false; T.Boolean false]);
+                separator = None
+            };
+        ]
+        in
+        List.iter run_test tests
+    
+    let test_strings () =
+        let tests: stack_test list = [
+            {
+                name      = "should return empty string: Stack [String ``]";
+                expected  = "";
+                value     = ([T.String ""]);
+                separator = None
+            };
+            {
+                name      = "should return `Hello World!`: Stack [String `Hello`; String `World!`]";
+                expected  = "Hello World!";
+                value     = ([T.String "Hello"; T.String "World!"]);
+                separator = None
+            };
+            {
+                name      = "should return `Love=Ocaml`: Stack [String `Love`; `Ocaml`] | separator=`=`";
+                expected  = "Love=Ocaml";
+                value     = ([T.String "Love"; T.String "Ocaml"]);
+                separator = Some "="
+            };
+            {
+                name      = "should return `Lorem ipsum dolor`: Stack [String `Lorem`; String `ipsum`; String `dolor`] | separator=` `";
+                expected  = "Lorem ipsum dolor";
+                value     = ([T.String "Lorem"; T.String "ipsum"; T.String "dolor"]);
+                separator = Some " "
+            };
+        ]
+        in
+        List.iter run_test tests
+    
+    let test_unit () =
+        let tests: stack_test list = [
+            {
+                name      = "should return `:unit:`: Stack [Unit]";
+                expected  = ":unit:";
+                value     = ([T.Unit]);
+                separator = None
+            };
+            {
+                name      = "should return empty `:unit:^^:unit:^^:unit:`: Stack [Unit; Unit; Unit] | separator=`^^`";
+                expected  = ":unit:^^:unit:^^:unit:";
+                value     = ([T.Unit; T.Unit; T.Unit]);
+                separator = Some "^^"
+            };
+        ]
+        in
+        List.iter run_test tests
+
+    let test_errors () =
+        let tests: stack_test list = [
+            {
+                name      = "should return `:error`: Stack [Error]";
+                expected  = ":error:";
+                value     = ([T.Error]);
+                separator = None
+            };
+            {
+                name      = "should return `:error:---:error:---:error:`: Stack [Error; Error; Error] | separator=`---`";
+                expected  = ":error:---:error:---:error:";
+                value     = ([T.Error; T.Error; T.Error]);
+                separator = Some "---"
+            };
+            {
+                name      = "should return `:error:___:error:`: Stack [Error; Error] | separator=`___`";
+                expected  = ":error:";
+                value     = ([T.Error]);
+                separator = Some "___"
+            };
+        ]
+        in
+        List.iter run_test tests
+
+    let test_type_combinations () =
+        let tests: stack_test list = [
+            {
+                name      = "should return `:error:;-;Hello;-;:error:`: Stack [Error; String `Hello`; Error] | separator=`;-;`";
+                expected  = ":error:;-;Hello;-;:error:";
+                value     = ([T.Error; T.String "Hello"; T.Error]);
+                separator = Some ";-;"
+            };
+            {
+                name      = "should return `:unit: Hello :unit: Message :true: :error:`: Stack [Unit; String `Hello`; Unit; String `Message`; Boolean true; Error]";
+                expected  = ":unit: Hello :unit: Message :true: :error:";
+                value     = ([T.Unit; T.String "Hello"; T.Unit; T.String "Message"; T.Boolean true; T.Error]);
+                separator = None
+            };
+            {
+                name      = "should return `:unit:\\t:unit:\\tMy\\tMessage\\t:unit:\\t:unit:`: Stack [Unit; Unit; String `My`; String `Message`; Unit; Unit] | separator=`\t`(tab)";
+                expected  = ":unit:\t:unit:\tMy\tMessage\t:unit:\t:unit:";
+                value     = ([T.Unit; T.Unit; T.String "My"; T.String "Message"; T.Unit; T.Unit]);
+                separator = Some "\t"
+            };
+            {
+                name      = "should return `Value of X is 7 :unit:`: Stack [String `Value`; String `of`; String `X`; String `is`; Integer 7; Unit]";
+                expected  = "Value of X is 7 :unit:";
+                value     = ([T.String "Value"; T.String "of"; T.String "X"; T.String "is"; T.Integer 7; T.Unit]);
+                separator = None
+            };
+            {
+                name      = "should return `Developed in OCaml 5.3.0`: Stack [String `Developed in Ocaml 5`; Integer 3; Integer 0] | separator=`.`";
+                expected  = "Developed in Ocaml 5.3.0";
+                value     = ([T.String "Developed in Ocaml 5"; T.Integer 3; T.Integer 0]);
+                separator = Some "."
             };
         ]
         in
@@ -438,6 +710,16 @@ let suites: unit Alcotest.test list = [
         Alcotest.test_case "pangram (lowercase)"          `Quick TestPPValue.test_pangram_lowercase;
         Alcotest.test_case "pangram (uppercase)"          `Quick TestPPValue.test_pangram_uppercase;
         Alcotest.test_case "lorem ipsum (random case)"    `Quick TestPPValue.test_lorem_ipsum_random_case;
+    ]);
+
+    ("Utils/pp_stack", [
+        Alcotest.test_case "empty stack"       `Quick TestPPStack.test_empty_stack;
+        Alcotest.test_case "integers"          `Quick TestPPStack.test_integers;
+        Alcotest.test_case "booleans"          `Quick TestPPStack.test_booleans;
+        Alcotest.test_case "strings"           `Quick TestPPStack.test_strings;
+        Alcotest.test_case "unit"              `Quick TestPPStack.test_unit;
+        Alcotest.test_case "errors"            `Quick TestPPStack.test_errors;
+        Alcotest.test_case "type combinations" `Quick TestPPStack.test_type_combinations;
     ]);
 
     ("Utils/resolve_int", [
