@@ -1,5 +1,11 @@
 module T = Interpreter.Types
 
+type ('expected_t, 'value_t) test_case = {
+    name:      string;
+    expected: 'expected_t;
+    value:    'value_t;
+}
+
 
 module To_Test = struct
     let pp_value = Interpreter.Utils.pp_value
@@ -9,336 +15,414 @@ end
 
 
 module TestPPValue = struct
-    let check_pp_value name expected value =
+    let check_pp_value ~name ~expected ~value =
         Alcotest.(check string) name expected (To_Test.pp_value value)
 
+    let run_test { name; expected; value } =
+        check_pp_value ~name ~expected ~value
+
     let test_integers () =
-        check_pp_value "should return   `0`: Integer   0"   "0" (T.Integer    0);
-        check_pp_value "should return   `1`: Integer   1"   "1" (T.Integer    1);
-        check_pp_value "should return `100`: Integer 100" "100" (T.Integer  100);
-        check_pp_value "should return  `-9`: Integer  -9"  "-9" (T.Integer (-9));
-        check_pp_value "should return   `0`: Integer  -0"   "0" (T.Integer (-0))
+        let tests: (string, T.value) test_case list = [
+            { name = "should return `0`: Integer 0";     expected = "0";   value = (T.Integer    0)};
+            { name = "should return `1`: Integer 1";     expected = "1";   value = (T.Integer    1)};
+            { name = "should return `100`: Integer 100"; expected = "100"; value = (T.Integer  100)};
+            { name = "should return `-9`: Integer -9";   expected = "-9";  value = (T.Integer (-9))};
+            { name = "should return `0`: Integer -0";    expected = "0";   value = (T.Integer (-0))};
+        ]
+        in
+        List.iter run_test tests
     
     let test_booleans () =
-        check_pp_value "should return `:true:`: Boolean true"  ":true:"  (T.Boolean true);
-        check_pp_value "should return `:false:`: Boolean true" ":false:" (T.Boolean false)
+        check_pp_value ~name:"should return `:true:`: Boolean true"  ~expected:":true:"  ~value:(T.Boolean true);
+        check_pp_value ~name:"should return `:false:`: Boolean true" ~expected:":false:" ~value:(T.Boolean false)
 
     let test_errors () =
-        check_pp_value "should return `:error:`: Error" ":error:" (T.Error)
+        check_pp_value ~name:"should return `:error:`: Error" ~expected:":error:" ~value:(T.Error)
     
     let test_unit () =
-        check_pp_value "should return `:unit:`: Unit" ":unit:" (T.Unit)
+        check_pp_value ~name:"should return `:unit:`: Unit" ~expected:":unit:" ~value:(T.Unit)
     
     let test_one_char_strings_lowercase () =
-        check_pp_value "should return `a`: String `a`" "a" (T.String "a");
-        check_pp_value "should return `b`: String `b`" "b" (T.String "b");
-        check_pp_value "should return `c`: String `c`" "c" (T.String "c");
-        check_pp_value "should return `d`: String `d`" "d" (T.String "d");
-        check_pp_value "should return `e`: String `e`" "e" (T.String "e");
-        check_pp_value "should return `f`: String `f`" "f" (T.String "f");
-        check_pp_value "should return `g`: String `g`" "g" (T.String "g");
-        check_pp_value "should return `h`: String `h`" "h" (T.String "h");
-        check_pp_value "should return `i`: String `i`" "i" (T.String "i");
-        check_pp_value "should return `j`: String `j`" "j" (T.String "j");
-        check_pp_value "should return `k`: String `k`" "k" (T.String "k");
-        check_pp_value "should return `l`: String `l`" "l" (T.String "l");
-        check_pp_value "should return `m`: String `m`" "m" (T.String "m");
-        check_pp_value "should return `n`: String `n`" "n" (T.String "n");
-        check_pp_value "should return `o`: String `o`" "o" (T.String "o");
-        check_pp_value "should return `p`: String `p`" "p" (T.String "p");
-        check_pp_value "should return `q`: String `q`" "q" (T.String "q");
-        check_pp_value "should return `r`: String `r`" "r" (T.String "r");
-        check_pp_value "should return `s`: String `s`" "s" (T.String "s");
-        check_pp_value "should return `t`: String `t`" "t" (T.String "t");
-        check_pp_value "should return `u`: String `u`" "u" (T.String "u");
-        check_pp_value "should return `v`: String `v`" "v" (T.String "v");
-        check_pp_value "should return `w`: String `w`" "w" (T.String "w");
-        check_pp_value "should return `x`: String `x`" "x" (T.String "x");
-        check_pp_value "should return `y`: String `y`" "y" (T.String "y");
-        check_pp_value "should return `z`: String `z`" "z" (T.String "z")
+        let tests: (string, T.value) test_case list = [
+            { name = "should return `a`: String `a`"; expected = "a"; value = (T.String "a") };
+            { name = "should return `b`: String `b`"; expected = "b"; value = (T.String "b") };
+            { name = "should return `c`: String `c`"; expected = "c"; value = (T.String "c") };
+            { name = "should return `d`: String `d`"; expected = "d"; value = (T.String "d") };
+            { name = "should return `e`: String `e`"; expected = "e"; value = (T.String "e") };
+            { name = "should return `f`: String `f`"; expected = "f"; value = (T.String "f") };
+            { name = "should return `g`: String `g`"; expected = "g"; value = (T.String "g") };
+            { name = "should return `h`: String `h`"; expected = "h"; value = (T.String "h") };
+            { name = "should return `i`: String `i`"; expected = "i"; value = (T.String "i") };
+            { name = "should return `j`: String `j`"; expected = "j"; value = (T.String "j") };
+            { name = "should return `k`: String `k`"; expected = "k"; value = (T.String "k") };
+            { name = "should return `l`: String `l`"; expected = "l"; value = (T.String "l") };
+            { name = "should return `m`: String `m`"; expected = "m"; value = (T.String "m") };
+            { name = "should return `n`: String `n`"; expected = "n"; value = (T.String "n") };
+            { name = "should return `o`: String `o`"; expected = "o"; value = (T.String "o") };
+            { name = "should return `p`: String `p`"; expected = "p"; value = (T.String "p") };
+            { name = "should return `q`: String `q`"; expected = "q"; value = (T.String "q") };
+            { name = "should return `r`: String `r`"; expected = "r"; value = (T.String "r") };
+            { name = "should return `s`: String `s`"; expected = "s"; value = (T.String "s") };
+            { name = "should return `t`: String `t`"; expected = "t"; value = (T.String "t") };
+            { name = "should return `u`: String `u`"; expected = "u"; value = (T.String "u") };
+            { name = "should return `v`: String `v`"; expected = "v"; value = (T.String "v") };
+            { name = "should return `w`: String `w`"; expected = "w"; value = (T.String "w") };
+            { name = "should return `x`: String `x`"; expected = "x"; value = (T.String "x") };
+            { name = "should return `y`: String `y`"; expected = "y"; value = (T.String "y") };
+            { name = "should return `z`: String `z`"; expected = "z"; value = (T.String "z") };
+        ]
+        in
+        List.iter run_test tests
     
     let test_one_char_strings_uppercase () =
-        check_pp_value "should return `A`: String `A`" "A" (T.String "A");
-        check_pp_value "should return `B`: String `B`" "B" (T.String "B");
-        check_pp_value "should return `C`: String `C`" "C" (T.String "C");
-        check_pp_value "should return `D`: String `D`" "D" (T.String "D");
-        check_pp_value "should return `E`: String `E`" "E" (T.String "E");
-        check_pp_value "should return `F`: String `F`" "F" (T.String "F");
-        check_pp_value "should return `G`: String `G`" "G" (T.String "G");
-        check_pp_value "should return `H`: String `H`" "H" (T.String "H");
-        check_pp_value "should return `I`: String `I`" "I" (T.String "I");
-        check_pp_value "should return `J`: String `J`" "J" (T.String "J");
-        check_pp_value "should return `K`: String `K`" "K" (T.String "K");
-        check_pp_value "should return `L`: String `L`" "L" (T.String "L");
-        check_pp_value "should return `M`: String `M`" "M" (T.String "M");
-        check_pp_value "should return `N`: String `N`" "N" (T.String "N");
-        check_pp_value "should return `O`: String `O`" "O" (T.String "O");
-        check_pp_value "should return `P`: String `P`" "P" (T.String "P");
-        check_pp_value "should return `Q`: String `Q`" "Q" (T.String "Q");
-        check_pp_value "should return `R`: String `R`" "R" (T.String "R");
-        check_pp_value "should return `S`: String `S`" "S" (T.String "S");
-        check_pp_value "should return `T`: String `T`" "T" (T.String "T");
-        check_pp_value "should return `U`: String `U`" "U" (T.String "U");
-        check_pp_value "should return `V`: String `V`" "V" (T.String "V");
-        check_pp_value "should return `W`: String `W`" "W" (T.String "W");
-        check_pp_value "should return `X`: String `X`" "X" (T.String "X");
-        check_pp_value "should return `Y`: String `Y`" "Y" (T.String "Y");
-        check_pp_value "should return `Z`: String `Z`" "Z" (T.String "Z")
+        let tests: (string, T.value) test_case list = [
+            { name = "should return `A`: String `A`"; expected = "A"; value = (T.String "A") };
+            { name = "should return `B`: String `B`"; expected = "B"; value = (T.String "B") };
+            { name = "should return `C`: String `C`"; expected = "C"; value = (T.String "C") };
+            { name = "should return `D`: String `D`"; expected = "D"; value = (T.String "D") };
+            { name = "should return `E`: String `E`"; expected = "E"; value = (T.String "E") };
+            { name = "should return `F`: String `F`"; expected = "F"; value = (T.String "F") };
+            { name = "should return `G`: String `G`"; expected = "G"; value = (T.String "G") };
+            { name = "should return `H`: String `H`"; expected = "H"; value = (T.String "H") };
+            { name = "should return `I`: String `I`"; expected = "I"; value = (T.String "I") };
+            { name = "should return `J`: String `J`"; expected = "J"; value = (T.String "J") };
+            { name = "should return `K`: String `K`"; expected = "K"; value = (T.String "K") };
+            { name = "should return `L`: String `L`"; expected = "L"; value = (T.String "L") };
+            { name = "should return `M`: String `M`"; expected = "M"; value = (T.String "M") };
+            { name = "should return `N`: String `N`"; expected = "N"; value = (T.String "N") };
+            { name = "should return `O`: String `O`"; expected = "O"; value = (T.String "O") };
+            { name = "should return `P`: String `P`"; expected = "P"; value = (T.String "P") };
+            { name = "should return `Q`: String `Q`"; expected = "Q"; value = (T.String "Q") };
+            { name = "should return `R`: String `R`"; expected = "R"; value = (T.String "R") };
+            { name = "should return `S`: String `S`"; expected = "S"; value = (T.String "S") };
+            { name = "should return `T`: String `T`"; expected = "T"; value = (T.String "T") };
+            { name = "should return `U`: String `U`"; expected = "U"; value = (T.String "U") };
+            { name = "should return `V`: String `V`"; expected = "V"; value = (T.String "V") };
+            { name = "should return `W`: String `W`"; expected = "W"; value = (T.String "W") };
+            { name = "should return `X`: String `X`"; expected = "X"; value = (T.String "X") };
+            { name = "should return `Y`: String `Y`"; expected = "Y"; value = (T.String "Y") };
+            { name = "should return `Z`: String `Z`"; expected = "Z"; value = (T.String "Z") };
+        ]
+        in
+        List.iter run_test tests
 
     let test_pangram_lowercase () =
-        check_pp_value
-            "should return `the quick brown fox jumps over the lazy dog`: String `the quick brown fox jumps over the lazy dog`"
-            "the quick brown fox jumps over the lazy dog"
-            (T.String "the quick brown fox jumps over the lazy dog");
-        check_pp_value
-            "should return `quick nymph bugs vex fjord waltz`: String `quick nymph bugs vex fjord waltz`"
-            "quick nymph bugs vex fjord waltz"
-            (T.String "quick nymph bugs vex fjord waltz");
-        check_pp_value
-            "should return `sphinx of black quartz, judge my vow`: String `sphinx of black quartz, judge my vow`"
-            "sphinx of black quartz, judge my vow"
-            (T.String "sphinx of black quartz, judge my vow")
+        let tests: (string, T.value) test_case list = [
+            {
+                name     = "should return `the quick brown fox jumps over the lazy dog`: String `the quick brown fox jumps over the lazy dog`";
+                expected = "the quick brown fox jumps over the lazy dog";
+                value    = (T.String "the quick brown fox jumps over the lazy dog");
+            };
+            {
+                name     = "should return `quick nymph bugs vex fjord waltz`: String `quick nymph bugs vex fjord waltz`";
+                expected =  "quick nymph bugs vex fjord waltz";
+                value    = (T.String "quick nymph bugs vex fjord waltz");
+            };
+            {
+                name     = "should return `sphinx of black quartz, judge my vow`: String `sphinx of black quartz, judge my vow`";
+                expected =  "sphinx of black quartz, judge my vow";
+                value    = (T.String "sphinx of black quartz, judge my vow");
+            };
+        ]
+        in
+        List.iter run_test tests
 
     let test_pangram_uppercase () =
-        check_pp_value
-            "should return `the quick brown fox jumps over the lazy dog`: String `the quick brown fox jumps over the lazy dog`"
-            "the quick brown fox jumps over the lazy dog"
-            (T.String "the quick brown fox jumps over the lazy dog");
-        check_pp_value
-            "should return `quick nymph bugs vex fjord waltz`: String `quick nymph bugs vex fjord waltz`"
-            "quick nymph bugs vex fjord waltz"
-            (T.String "quick nymph bugs vex fjord waltz");
-        check_pp_value
-            "should return `sphinx of black quartz, judge my vow`: String `sphinx of black quartz, judge my vow`"
-            "sphinx of black quartz, judge my vow"
-            (T.String "sphinx of black quartz, judge my vow")
+        let tests: (string, T.value) test_case list = [
+            {
+                name = "should return `THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG`: String `THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG`";
+                expected = "THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG";
+                value = (T.String "THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG");
+            };
+            {
+                name = "should return `QUICK NYMPH BUGS VEX FJORD WALTZ`: String `QUICK NYMPH BUGS VEX FJORD WALTZ`";
+                expected = "QUICK NYMPH BUGS VEX FJORD WALTZ";
+                value = (T.String "QUICK NYMPH BUGS VEX FJORD WALTZ");
+            };
+            {
+                name = "should return `SPHINX OF BLACK QUARTZ, JUDGE MY VOW`: String `SPHINX OF BLACK QUARTZ, JUDGE MY VOW`";
+                expected = "SPHINX OF BLACK QUARTZ, JUDGE MY VOW";
+                value = (T.String "SPHINX OF BLACK QUARTZ, JUDGE MY VOW");
+            };
+        ]
+        in
+        List.iter run_test tests
     
     let test_lorem_ipsum_random_case () =
-        check_pp_value
-            ("should return `LoReM iPsum DoLoR sit aMET, COnSECTETuR AdIpIScING ELIt. nAm VIVErRa matTis RIsus TRISTiqUE MAXiMUS`:" ^
-            "String `LoReM iPsum DoLoR sit aMET, COnSECTETuR AdIpIScING ELIt. nAm VIVErRa matTis RIsus TRISTiqUE MAXiMUS`")
-            "LoReM iPsum DoLoR sit aMET, COnSECTETuR AdIpIScING ELIt. nAm VIVErRa matTis RIsus TRISTiqUE MAXiMUS"
-            (T.String "LoReM iPsum DoLoR sit aMET, COnSECTETuR AdIpIScING ELIt. nAm VIVErRa matTis RIsus TRISTiqUE MAXiMUS");
-        check_pp_value
-            ("should return `seD A mASSA noN urNa FaUCibUs BLANDiT. duIS INTERDUM POrtTIToR URNa Ac cuRsuS. sED sED LoBortIS lorem`:" ^
-            "String `seD A mASSA noN urNa FaUCibUs BLANDiT. duIS INTERDUM POrtTIToR URNa Ac cuRsuS. sED sED LoBortIS lorem`")
-            "seD A mASSA noN urNa FaUCibUs BLANDiT. duIS INTERDUM POrtTIToR URNa Ac cuRsuS. sED sED LoBortIS lorem"
-            (T.String "seD A mASSA noN urNa FaUCibUs BLANDiT. duIS INTERDUM POrtTIToR URNa Ac cuRsuS. sED sED LoBortIS lorem");
+        let tests: (string, T.value) test_case list = [
+            {
+                name = (
+                    "should return `LoReM iPsum DoLoR sit aMET, COnSECTETuR AdIpIScING ELIt. nAm VIVErRa matTis RIsus TRISTiqUE MAXiMUS`:" ^
+                    "String `LoReM iPsum DoLoR sit aMET, COnSECTETuR AdIpIScING ELIt. nAm VIVErRa matTis RIsus TRISTiqUE MAXiMUS`"
+                );
+                expected = "LoReM iPsum DoLoR sit aMET, COnSECTETuR AdIpIScING ELIt. nAm VIVErRa matTis RIsus TRISTiqUE MAXiMUS";
+                value    = (T.String "LoReM iPsum DoLoR sit aMET, COnSECTETuR AdIpIScING ELIt. nAm VIVErRa matTis RIsus TRISTiqUE MAXiMUS");
+            };
+            {
+                name = (
+                    "should return `seD A mASSA noN urNa FaUCibUs BLANDiT. duIS INTERDUM POrtTIToR URNa Ac cuRsuS. sED sED LoBortIS lorem`: " ^
+                    "String `seD A mASSA noN urNa FaUCibUs BLANDiT. duIS INTERDUM POrtTIToR URNa Ac cuRsuS. sED sED LoBortIS lorem`"
+                );
+                expected = "seD A mASSA noN urNa FaUCibUs BLANDiT. duIS INTERDUM POrtTIToR URNa Ac cuRsuS. sED sED LoBortIS lorem";
+                value    = (T.String "seD A mASSA noN urNa FaUCibUs BLANDiT. duIS INTERDUM POrtTIToR URNa Ac cuRsuS. sED sED LoBortIS lorem");
+            };
+        ]
+        in
+        List.iter run_test tests
 end
 
 
 module TestResolveInt = struct
-    let check_resolve_int name expected value =
+    let check_resolve_int ~name ~expected ~value =
         Alcotest.(check (Alcotest.option Alcotest.int)) name expected (To_Test.resolve_int value)
     
+    
+    let run_test { name; expected; value } =
+        check_resolve_int ~name ~expected ~value
+    
     let test_integers () =
-        check_resolve_int "should return  `0`: Integer  0" (Some   0)  (T.Integer   0);
-        check_resolve_int "should return  `6`: Integer  6" (Some   6)  (T.Integer   6);
-        check_resolve_int "should return `55`: Integer 55" (Some  55)  (T.Integer  55);
-        check_resolve_int "should return `-1`: Integer -1" (Some (-1)) (T.Integer (-1))        
+        let tests: (int option, T.value) test_case list = [
+            { name = "should return `0`: Integer 0";   expected = (Some 0);    value = (T.Integer   0)  };
+            { name = "should return `6`: Integer 6";   expected = (Some 6);    value = (T.Integer   6)  };
+            { name = "should return `55`: Integer 55"; expected = (Some 55);   value = (T.Integer  55)  };
+            { name = "should return `-1`: Integer -1"; expected = (Some (-1)); value = (T.Integer (-1)) };
+        ]
+        in
+        List.iter run_test tests
 
     let test_booleans () =
-        check_resolve_int "should return `None`: Boolean true"  (None)  (T.Boolean true);
-        check_resolve_int "should return `None`: Boolean false" (None)  (T.Boolean false)
+        check_resolve_int ~name:"should return `None`: Boolean true"  ~expected:(None) ~value:(T.Boolean true);
+        check_resolve_int ~name:"should return `None`: Boolean false" ~expected:(None) ~value:(T.Boolean false)
 
     let test_errors () =
-        check_resolve_int "should return `None`: Error" (None) (T.Error)
+        check_resolve_int ~name:"should return `None`: Error" ~expected:(None) ~value:(T.Error)
 
     let test_unit () =
-        check_resolve_int "should return `None`: Unit" (None) (T.Unit)
+        check_resolve_int ~name:"should return `None`: Unit" ~expected:(None) ~value:(T.Unit)
 
     let test_one_char_strings_lowercase () =
-        check_resolve_int "should return `None`: String `a`" (None) (T.String "a");
-        check_resolve_int "should return `None`: String `b`" (None) (T.String "b");
-        check_resolve_int "should return `None`: String `c`" (None) (T.String "c");
-        check_resolve_int "should return `None`: String `d`" (None) (T.String "d");
-        check_resolve_int "should return `None`: String `e`" (None) (T.String "e");
-        check_resolve_int "should return `None`: String `f`" (None) (T.String "f");
-        check_resolve_int "should return `None`: String `g`" (None) (T.String "g");
-        check_resolve_int "should return `None`: String `h`" (None) (T.String "h");
-        check_resolve_int "should return `None`: String `i`" (None) (T.String "i");
-        check_resolve_int "should return `None`: String `j`" (None) (T.String "j");
-        check_resolve_int "should return `None`: String `k`" (None) (T.String "k");
-        check_resolve_int "should return `None`: String `l`" (None) (T.String "l");
-        check_resolve_int "should return `None`: String `m`" (None) (T.String "m");
-        check_resolve_int "should return `None`: String `n`" (None) (T.String "n");
-        check_resolve_int "should return `None`: String `o`" (None) (T.String "o");
-        check_resolve_int "should return `None`: String `p`" (None) (T.String "p");
-        check_resolve_int "should return `None`: String `q`" (None) (T.String "q");
-        check_resolve_int "should return `None`: String `r`" (None) (T.String "r");
-        check_resolve_int "should return `None`: String `s`" (None) (T.String "s");
-        check_resolve_int "should return `None`: String `t`" (None) (T.String "t");
-        check_resolve_int "should return `None`: String `u`" (None) (T.String "u");
-        check_resolve_int "should return `None`: String `v`" (None) (T.String "v");
-        check_resolve_int "should return `None`: String `w`" (None) (T.String "w");
-        check_resolve_int "should return `None`: String `x`" (None) (T.String "x");
-        check_resolve_int "should return `None`: String `y`" (None) (T.String "y");
-        check_resolve_int "should return `None`: String `z`" (None) (T.String "z")
+        let tests: (int option, T.value) test_case list = [
+            { name = "should return `None`: String `a`"; expected = (None); value = (T.String "a") };
+            { name = "should return `None`: String `b`"; expected = (None); value = (T.String "b") };
+            { name = "should return `None`: String `c`"; expected = (None); value = (T.String "c") };
+            { name = "should return `None`: String `d`"; expected = (None); value = (T.String "d") };
+            { name = "should return `None`: String `e`"; expected = (None); value = (T.String "e") };
+            { name = "should return `None`: String `f`"; expected = (None); value = (T.String "f") };
+            { name = "should return `None`: String `g`"; expected = (None); value = (T.String "g") };
+            { name = "should return `None`: String `h`"; expected = (None); value = (T.String "h") };
+            { name = "should return `None`: String `i`"; expected = (None); value = (T.String "i") };
+            { name = "should return `None`: String `j`"; expected = (None); value = (T.String "j") };
+            { name = "should return `None`: String `k`"; expected = (None); value = (T.String "k") };
+            { name = "should return `None`: String `l`"; expected = (None); value = (T.String "l") };
+            { name = "should return `None`: String `m`"; expected = (None); value = (T.String "m") };
+            { name = "should return `None`: String `n`"; expected = (None); value = (T.String "n") };
+            { name = "should return `None`: String `o`"; expected = (None); value = (T.String "o") };
+            { name = "should return `None`: String `p`"; expected = (None); value = (T.String "p") };
+            { name = "should return `None`: String `q`"; expected = (None); value = (T.String "q") };
+            { name = "should return `None`: String `r`"; expected = (None); value = (T.String "r") };
+            { name = "should return `None`: String `s`"; expected = (None); value = (T.String "s") };
+            { name = "should return `None`: String `t`"; expected = (None); value = (T.String "t") };
+            { name = "should return `None`: String `u`"; expected = (None); value = (T.String "u") };
+            { name = "should return `None`: String `v`"; expected = (None); value = (T.String "v") };
+            { name = "should return `None`: String `w`"; expected = (None); value = (T.String "w") };
+            { name = "should return `None`: String `x`"; expected = (None); value = (T.String "x") };
+            { name = "should return `None`: String `y`"; expected = (None); value = (T.String "y") };
+            { name = "should return `None`: String `z`"; expected = (None); value = (T.String "z") };
+        ]
+        in
+        List.iter run_test tests
 
     let test_one_char_strings_uppercase () =
-        check_resolve_int "should return `None`: String `A`" (None) (T.String "A");
-        check_resolve_int "should return `None`: String `B`" (None) (T.String "B");
-        check_resolve_int "should return `None`: String `C`" (None) (T.String "C");
-        check_resolve_int "should return `None`: String `D`" (None) (T.String "D");
-        check_resolve_int "should return `None`: String `E`" (None) (T.String "E");
-        check_resolve_int "should return `None`: String `F`" (None) (T.String "F");
-        check_resolve_int "should return `None`: String `G`" (None) (T.String "G");
-        check_resolve_int "should return `None`: String `H`" (None) (T.String "H");
-        check_resolve_int "should return `None`: String `I`" (None) (T.String "I");
-        check_resolve_int "should return `None`: String `J`" (None) (T.String "J");
-        check_resolve_int "should return `None`: String `K`" (None) (T.String "K");
-        check_resolve_int "should return `None`: String `L`" (None) (T.String "L");
-        check_resolve_int "should return `None`: String `M`" (None) (T.String "M");
-        check_resolve_int "should return `None`: String `N`" (None) (T.String "N");
-        check_resolve_int "should return `None`: String `O`" (None) (T.String "O");
-        check_resolve_int "should return `None`: String `P`" (None) (T.String "P");
-        check_resolve_int "should return `None`: String `Q`" (None) (T.String "Q");
-        check_resolve_int "should return `None`: String `R`" (None) (T.String "R");
-        check_resolve_int "should return `None`: String `S`" (None) (T.String "S");
-        check_resolve_int "should return `None`: String `T`" (None) (T.String "T");
-        check_resolve_int "should return `None`: String `U`" (None) (T.String "U");
-        check_resolve_int "should return `None`: String `V`" (None) (T.String "V");
-        check_resolve_int "should return `None`: String `W`" (None) (T.String "W");
-        check_resolve_int "should return `None`: String `X`" (None) (T.String "X");
-        check_resolve_int "should return `None`: String `Y`" (None) (T.String "Y");
-        check_resolve_int "should return `None`: String `Z`" (None) (T.String "Z")
+        let tests: (int option, T.value) test_case list = [
+            { name = "should return `None`: String `A`"; expected = (None); value = (T.String "A") };
+            { name = "should return `None`: String `B`"; expected = (None); value = (T.String "B") };
+            { name = "should return `None`: String `C`"; expected = (None); value = (T.String "C") };
+            { name = "should return `None`: String `D`"; expected = (None); value = (T.String "D") };
+            { name = "should return `None`: String `E`"; expected = (None); value = (T.String "E") };
+            { name = "should return `None`: String `F`"; expected = (None); value = (T.String "F") };
+            { name = "should return `None`: String `G`"; expected = (None); value = (T.String "G") };
+            { name = "should return `None`: String `H`"; expected = (None); value = (T.String "H") };
+            { name = "should return `None`: String `I`"; expected = (None); value = (T.String "I") };
+            { name = "should return `None`: String `J`"; expected = (None); value = (T.String "J") };
+            { name = "should return `None`: String `K`"; expected = (None); value = (T.String "K") };
+            { name = "should return `None`: String `L`"; expected = (None); value = (T.String "L") };
+            { name = "should return `None`: String `M`"; expected = (None); value = (T.String "M") };
+            { name = "should return `None`: String `N`"; expected = (None); value = (T.String "N") };
+            { name = "should return `None`: String `O`"; expected = (None); value = (T.String "O") };
+            { name = "should return `None`: String `P`"; expected = (None); value = (T.String "P") };
+            { name = "should return `None`: String `Q`"; expected = (None); value = (T.String "Q") };
+            { name = "should return `None`: String `R`"; expected = (None); value = (T.String "R") };
+            { name = "should return `None`: String `S`"; expected = (None); value = (T.String "S") };
+            { name = "should return `None`: String `T`"; expected = (None); value = (T.String "T") };
+            { name = "should return `None`: String `U`"; expected = (None); value = (T.String "U") };
+            { name = "should return `None`: String `V`"; expected = (None); value = (T.String "V") };
+            { name = "should return `None`: String `W`"; expected = (None); value = (T.String "W") };
+            { name = "should return `None`: String `X`"; expected = (None); value = (T.String "X") };
+            { name = "should return `None`: String `Y`"; expected = (None); value = (T.String "Y") };
+            { name = "should return `None`: String `Z`"; expected = (None); value = (T.String "Z") };
+        ]
+        in
+        List.iter run_test tests
 end
 
 
 module TestIsValidName = struct
-    let check_valid_name name expected value =
+    let check_valid_name ~name ~expected ~value =
         Alcotest.(check bool) name expected (To_Test.is_valid_name value)
 
+    let run_test { name; expected; value } =
+        check_valid_name ~name ~expected ~value
+
     let test_one_letter_lowercase_name () =
-        check_valid_name "should return `true`: a" true "a";
-        check_valid_name "should return `true`: b" true "b";
-        check_valid_name "should return `true`: c" true "c";
-        check_valid_name "should return `true`: d" true "d";
-        check_valid_name "should return `true`: e" true "e";
-        check_valid_name "should return `true`: f" true "f";
-        check_valid_name "should return `true`: g" true "g";
-        check_valid_name "should return `true`: h" true "h";
-        check_valid_name "should return `true`: i" true "i";
-        check_valid_name "should return `true`: j" true "j";
-        check_valid_name "should return `true`: k" true "k";
-        check_valid_name "should return `true`: l" true "l";
-        check_valid_name "should return `true`: m" true "m";
-        check_valid_name "should return `true`: n" true "n";
-        check_valid_name "should return `true`: o" true "o";
-        check_valid_name "should return `true`: p" true "p";
-        check_valid_name "should return `true`: q" true "q";
-        check_valid_name "should return `true`: r" true "r";
-        check_valid_name "should return `true`: s" true "s";
-        check_valid_name "should return `true`: t" true "t";
-        check_valid_name "should return `true`: u" true "u";
-        check_valid_name "should return `true`: v" true "v";
-        check_valid_name "should return `true`: w" true "w";
-        check_valid_name "should return `true`: x" true "x";
-        check_valid_name "should return `true`: y" true "y";
-        check_valid_name "should return `true`: z" true "z"
+        let tests: (bool, string) test_case list = [
+            { name = "should return `true`: a"; expected = true; value = "a" };
+            { name = "should return `true`: b"; expected = true; value = "b" };
+            { name = "should return `true`: c"; expected = true; value = "c" };
+            { name = "should return `true`: d"; expected = true; value = "d" };
+            { name = "should return `true`: e"; expected = true; value = "e" };
+            { name = "should return `true`: f"; expected = true; value = "f" };
+            { name = "should return `true`: g"; expected = true; value = "g" };
+            { name = "should return `true`: h"; expected = true; value = "h" };
+            { name = "should return `true`: i"; expected = true; value = "i" };
+            { name = "should return `true`: j"; expected = true; value = "j" };
+            { name = "should return `true`: k"; expected = true; value = "k" };
+            { name = "should return `true`: l"; expected = true; value = "l" };
+            { name = "should return `true`: m"; expected = true; value = "m" };
+            { name = "should return `true`: n"; expected = true; value = "n" };
+            { name = "should return `true`: o"; expected = true; value = "o" };
+            { name = "should return `true`: p"; expected = true; value = "p" };
+            { name = "should return `true`: q"; expected = true; value = "q" };
+            { name = "should return `true`: r"; expected = true; value = "r" };
+            { name = "should return `true`: s"; expected = true; value = "s" };
+            { name = "should return `true`: t"; expected = true; value = "t" };
+            { name = "should return `true`: u"; expected = true; value = "u" };
+            { name = "should return `true`: v"; expected = true; value = "v" };
+            { name = "should return `true`: w"; expected = true; value = "w" };
+            { name = "should return `true`: x"; expected = true; value = "x" };
+            { name = "should return `true`: y"; expected = true; value = "y" };
+            { name = "should return `true`: z"; expected = true; value = "z" };
+        ]
+        in
+        List.iter run_test tests
 
     let test_one_letter_uppercase_name () =
-        check_valid_name "should return `true`: A" true "A";
-        check_valid_name "should return `true`: B" true "B";
-        check_valid_name "should return `true`: C" true "C";
-        check_valid_name "should return `true`: D" true "D";
-        check_valid_name "should return `true`: E" true "E";
-        check_valid_name "should return `true`: F" true "F";
-        check_valid_name "should return `true`: G" true "G";
-        check_valid_name "should return `true`: H" true "H";
-        check_valid_name "should return `true`: I" true "I";
-        check_valid_name "should return `true`: J" true "J";
-        check_valid_name "should return `true`: K" true "K";
-        check_valid_name "should return `true`: L" true "L";
-        check_valid_name "should return `true`: M" true "M";
-        check_valid_name "should return `true`: N" true "N";
-        check_valid_name "should return `true`: O" true "O";
-        check_valid_name "should return `true`: P" true "P";
-        check_valid_name "should return `true`: Q" true "Q";
-        check_valid_name "should return `true`: R" true "R";
-        check_valid_name "should return `true`: S" true "S";
-        check_valid_name "should return `true`: T" true "T";
-        check_valid_name "should return `true`: U" true "U";
-        check_valid_name "should return `true`: V" true "V";
-        check_valid_name "should return `true`: W" true "W";
-        check_valid_name "should return `true`: X" true "X";
-        check_valid_name "should return `true`: Y" true "Y";
-        check_valid_name "should return `true`: Z" true "Z"
+        let tests: (bool, string) test_case list = [
+            { name = "should return `true`: A"; expected = true; value = "A" };
+            { name = "should return `true`: B"; expected = true; value = "B" };
+            { name = "should return `true`: C"; expected = true; value = "C" };
+            { name = "should return `true`: D"; expected = true; value = "D" };
+            { name = "should return `true`: E"; expected = true; value = "E" };
+            { name = "should return `true`: F"; expected = true; value = "F" };
+            { name = "should return `true`: G"; expected = true; value = "G" };
+            { name = "should return `true`: H"; expected = true; value = "H" };
+            { name = "should return `true`: I"; expected = true; value = "I" };
+            { name = "should return `true`: J"; expected = true; value = "J" };
+            { name = "should return `true`: K"; expected = true; value = "K" };
+            { name = "should return `true`: L"; expected = true; value = "L" };
+            { name = "should return `true`: M"; expected = true; value = "M" };
+            { name = "should return `true`: N"; expected = true; value = "N" };
+            { name = "should return `true`: O"; expected = true; value = "O" };
+            { name = "should return `true`: P"; expected = true; value = "P" };
+            { name = "should return `true`: Q"; expected = true; value = "Q" };
+            { name = "should return `true`: R"; expected = true; value = "R" };
+            { name = "should return `true`: S"; expected = true; value = "S" };
+            { name = "should return `true`: T"; expected = true; value = "T" };
+            { name = "should return `true`: U"; expected = true; value = "U" };
+            { name = "should return `true`: V"; expected = true; value = "V" };
+            { name = "should return `true`: W"; expected = true; value = "W" };
+            { name = "should return `true`: X"; expected = true; value = "X" };
+            { name = "should return `true`: Y"; expected = true; value = "Y" };
+            { name = "should return `true`: Z"; expected = true; value = "Z" };
+        ]
+        in
+        List.iter run_test tests
 
     let test_two_letter_lowercase_name () =
-        check_valid_name "should return `true`: ea" true "ea";
-        check_valid_name "should return `true`: fb" true "fb";
-        check_valid_name "should return `true`: gc" true "gc";
-        check_valid_name "should return `true`: hd" true "hd";
-        check_valid_name "should return `true`: ie" true "ie";
-        check_valid_name "should return `true`: jf" true "jf";
-        check_valid_name "should return `true`: kg" true "kg";
-        check_valid_name "should return `true`: lh" true "lh";
-        check_valid_name "should return `true`: mi" true "mi";
-        check_valid_name "should return `true`: nj" true "nj";
-        check_valid_name "should return `true`: ok" true "ok";
-        check_valid_name "should return `true`: pl" true "pl";
-        check_valid_name "should return `true`: qm" true "qm";
-        check_valid_name "should return `true`: rn" true "rn";
-        check_valid_name "should return `true`: so" true "so";
-        check_valid_name "should return `true`: tp" true "tp";
-        check_valid_name "should return `true`: uq" true "uq";
-        check_valid_name "should return `true`: vr" true "vr";
-        check_valid_name "should return `true`: ws" true "ws";
-        check_valid_name "should return `true`: xt" true "xt";
-        check_valid_name "should return `true`: yu" true "yu";
-        check_valid_name "should return `true`: zv" true "zv";
-        check_valid_name "should return `true`: iw" true "iw";
-        check_valid_name "should return `true`: jx" true "jx";
-        check_valid_name "should return `true`: ky" true "ky";
-        check_valid_name "should return `true`: lz" true "lz"
+        let tests: (bool, string) test_case list = [
+            { name = "should return `true`: ea"; expected = true; value = "ea" };
+            { name = "should return `true`: fb"; expected = true; value = "fb" };
+            { name = "should return `true`: gc"; expected = true; value = "gc" };
+            { name = "should return `true`: hd"; expected = true; value = "hd" };
+            { name = "should return `true`: ie"; expected = true; value = "ie" };
+            { name = "should return `true`: jf"; expected = true; value = "jf" };
+            { name = "should return `true`: kg"; expected = true; value = "kg" };
+            { name = "should return `true`: lh"; expected = true; value = "lh" };
+            { name = "should return `true`: mi"; expected = true; value = "mi" };
+            { name = "should return `true`: nj"; expected = true; value = "nj" };
+            { name = "should return `true`: ok"; expected = true; value = "ok" };
+            { name = "should return `true`: pl"; expected = true; value = "pl" };
+            { name = "should return `true`: qm"; expected = true; value = "qm" };
+            { name = "should return `true`: rn"; expected = true; value = "rn" };
+            { name = "should return `true`: so"; expected = true; value = "so" };
+            { name = "should return `true`: tp"; expected = true; value = "tp" };
+            { name = "should return `true`: uq"; expected = true; value = "uq" };
+            { name = "should return `true`: vr"; expected = true; value = "vr" };
+            { name = "should return `true`: ws"; expected = true; value = "ws" };
+            { name = "should return `true`: xt"; expected = true; value = "xt" };
+            { name = "should return `true`: yu"; expected = true; value = "yu" };
+            { name = "should return `true`: zv"; expected = true; value = "zv" };
+            { name = "should return `true`: iw"; expected = true; value = "iw" };
+            { name = "should return `true`: jx"; expected = true; value = "jx" };
+            { name = "should return `true`: ky"; expected = true; value = "ky" };
+            { name = "should return `true`: lz"; expected = true; value = "lz" };
+        ]
+        in
+        List.iter run_test tests
 
     let test_two_letter_uppercase_name () =
-        check_valid_name "should return `true`: EA" true "EA";
-        check_valid_name "should return `true`: FB" true "FB";
-        check_valid_name "should return `true`: GC" true "GC";
-        check_valid_name "should return `true`: HD" true "HD";
-        check_valid_name "should return `true`: IE" true "IE";
-        check_valid_name "should return `true`: JF" true "JF";
-        check_valid_name "should return `true`: KG" true "KG";
-        check_valid_name "should return `true`: LH" true "LH";
-        check_valid_name "should return `true`: MI" true "MI";
-        check_valid_name "should return `true`: NJ" true "NJ";
-        check_valid_name "should return `true`: OK" true "OK";
-        check_valid_name "should return `true`: PL" true "PL";
-        check_valid_name "should return `true`: QM" true "QM";
-        check_valid_name "should return `true`: RN" true "RN";
-        check_valid_name "should return `true`: SO" true "SO";
-        check_valid_name "should return `true`: TP" true "TP";
-        check_valid_name "should return `true`: UQ" true "UQ";
-        check_valid_name "should return `true`: VR" true "VR";
-        check_valid_name "should return `true`: WS" true "WS";
-        check_valid_name "should return `true`: XT" true "XT";
-        check_valid_name "should return `true`: YU" true "YU";
-        check_valid_name "should return `true`: ZV" true "ZV";
-        check_valid_name "should return `true`: IW" true "IW";
-        check_valid_name "should return `true`: JX" true "JX";
-        check_valid_name "should return `true`: KY" true "KY";
-        check_valid_name "should return `true`: LZ" true "LZ"
+        let tests: (bool, string) test_case list = [
+            { name = "should return `true`: EA"; expected = true; value = "EA" };
+            { name = "should return `true`: FB"; expected = true; value = "FB" };
+            { name = "should return `true`: GC"; expected = true; value = "GC" };
+            { name = "should return `true`: HD"; expected = true; value = "HD" };
+            { name = "should return `true`: IE"; expected = true; value = "IE" };
+            { name = "should return `true`: JF"; expected = true; value = "JF" };
+            { name = "should return `true`: KG"; expected = true; value = "KG" };
+            { name = "should return `true`: LH"; expected = true; value = "LH" };
+            { name = "should return `true`: MI"; expected = true; value = "MI" };
+            { name = "should return `true`: NJ"; expected = true; value = "NJ" };
+            { name = "should return `true`: OK"; expected = true; value = "OK" };
+            { name = "should return `true`: PL"; expected = true; value = "PL" };
+            { name = "should return `true`: QM"; expected = true; value = "QM" };
+            { name = "should return `true`: RN"; expected = true; value = "RN" };
+            { name = "should return `true`: SO"; expected = true; value = "SO" };
+            { name = "should return `true`: TP"; expected = true; value = "TP" };
+            { name = "should return `true`: UQ"; expected = true; value = "UQ" };
+            { name = "should return `true`: VR"; expected = true; value = "VR" };
+            { name = "should return `true`: WS"; expected = true; value = "WS" };
+            { name = "should return `true`: XT"; expected = true; value = "XT" };
+            { name = "should return `true`: YU"; expected = true; value = "YU" };
+            { name = "should return `true`: ZV"; expected = true; value = "ZV" };
+            { name = "should return `true`: IW"; expected = true; value = "IW" };
+            { name = "should return `true`: JX"; expected = true; value = "JX" };
+            { name = "should return `true`: KY"; expected = true; value = "KY" };
+            { name = "should return `true`: LZ"; expected = true; value = "LZ" };
+        ]
+        in
+        List.iter run_test tests
 
     let test_invalid_one_character () =
-        check_valid_name "should return false: ` `" false " ";
-        check_valid_name "should return false: `_`" false "_";
-        check_valid_name "should return false: `0`" false "0";
-        check_valid_name "should return false: `1`" false "1";
-        check_valid_name "should return false: `2`" false "2";
-        check_valid_name "should return false: `3`" false "3";
-        check_valid_name "should return false: `4`" false "4";
-        check_valid_name "should return false: `5`" false "5";
-        check_valid_name "should return false: `6`" false "6";
-        check_valid_name "should return false: `7`" false "7";
-        check_valid_name "should return false: `8`" false "8";
-        check_valid_name "should return false: `9`" false "9";
-        check_valid_name "should return false: `[`" false "[";
-        check_valid_name "should return false: `]`" false "]";
-        check_valid_name "should return false: `-`" false "-";
-        check_valid_name "should return false: `+`" false "+";
-        check_valid_name "should return false: `-`" false "-";
+        let tests: (bool, string) test_case list = [
+            { name = "should return false: ` `"; expected = false; value = " " };
+            { name = "should return false: `_`"; expected = false; value = "_" };
+            { name = "should return false: `0`"; expected = false; value = "0" };
+            { name = "should return false: `1`"; expected = false; value = "1" };
+            { name = "should return false: `2`"; expected = false; value = "2" };
+            { name = "should return false: `3`"; expected = false; value = "3" };
+            { name = "should return false: `4`"; expected = false; value = "4" };
+            { name = "should return false: `5`"; expected = false; value = "5" };
+            { name = "should return false: `6`"; expected = false; value = "6" };
+            { name = "should return false: `7`"; expected = false; value = "7" };
+            { name = "should return false: `8`"; expected = false; value = "8" };
+            { name = "should return false: `9`"; expected = false; value = "9" };
+            { name = "should return false: `[`"; expected = false; value = "[" };
+            { name = "should return false: `]`"; expected = false; value = "]" };
+            { name = "should return false: `-`"; expected = false; value = "-" };
+            { name = "should return false: `+`"; expected = false; value = "+" };
+            { name = "should return false: `-`"; expected = false; value = "-" };
+        ]
+        in
+        List.iter run_test tests
 end
 
 
