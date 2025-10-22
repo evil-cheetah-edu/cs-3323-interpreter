@@ -32,7 +32,7 @@ let resolve_int (value: Types.value): int option =
     - [Types.Unit] is printed as ":unit:".
     - [Types.Error] is printed as ":error:".
 *)
-let pp_value = function
+let value_to_string = function
     | Types.Integer n     -> string_of_int n
     | Types.Boolean true  -> ":true:"
     | Types.Boolean false -> ":false:"
@@ -56,10 +56,10 @@ let pp_value = function
     @param stack The [Types.stack] to to pretty-print.
     @return A [string] representation of the stack.
 *)
-let rec pp_stack ?(separator = " ") = function
+let rec stack_to_string ?(separator = " ") = function
     | []           -> ""
-    | [ head ]     -> pp_value head
-    | head :: tail -> pp_value head ^ separator ^ pp_stack ~separator tail
+    | [ head ]     -> value_to_string head
+    | head :: tail -> value_to_string head ^ separator ^ stack_to_string ~separator tail
 
 
 

@@ -8,19 +8,19 @@ type ('expected_t, 'value_t) test_case = {
 
 
 module To_Test = struct
-    let pp_value = Interpreter.Utils.pp_value
-    let pp_stack = Interpreter.Utils.pp_stack
+    let value_to_string = Interpreter.Utils.value_to_string
+    let stack_to_string = Interpreter.Utils.stack_to_string
     let resolve_int = Interpreter.Utils.resolve_int
     let is_valid_name = Interpreter.Utils.is_valid_name
 end
 
 
 module TestPPValue = struct
-    let check_pp_value ~name ~expected ~value =
-        Alcotest.(check string) name expected (To_Test.pp_value value)
+    let check_value_to_string ~name ~expected ~value =
+        Alcotest.(check string) name expected (To_Test.value_to_string value)
 
     let run_test { name; expected; value } =
-        check_pp_value ~name ~expected ~value
+        check_value_to_string ~name ~expected ~value
 
     let test_integers () =
         let tests: (string, T.value) test_case list = [
@@ -34,14 +34,14 @@ module TestPPValue = struct
         List.iter run_test tests
     
     let test_booleans () =
-        check_pp_value ~name:"should return `:true:`: Boolean true"  ~expected:":true:"  ~value:(T.Boolean true);
-        check_pp_value ~name:"should return `:false:`: Boolean true" ~expected:":false:" ~value:(T.Boolean false)
+        check_value_to_string ~name:"should return `:true:`: Boolean true"  ~expected:":true:"  ~value:(T.Boolean true);
+        check_value_to_string ~name:"should return `:false:`: Boolean true" ~expected:":false:" ~value:(T.Boolean false)
 
     let test_errors () =
-        check_pp_value ~name:"should return `:error:`: Error" ~expected:":error:" ~value:(T.Error)
+        check_value_to_string ~name:"should return `:error:`: Error" ~expected:":error:" ~value:(T.Error)
     
     let test_unit () =
-        check_pp_value ~name:"should return `:unit:`: Unit" ~expected:":unit:" ~value:(T.Unit)
+        check_value_to_string ~name:"should return `:unit:`: Unit" ~expected:":unit:" ~value:(T.Unit)
     
     let test_one_char_strings_lowercase () =
         let tests: (string, T.value) test_case list = [
@@ -181,11 +181,11 @@ module TestPPStack = struct
         separator: string option;
     }
 
-    let check_pp_stack ~name ~expected ~value ?separator () =
-        Alcotest.(check string) name expected (To_Test.pp_stack ?separator value)
+    let check_stack_to_string ~name ~expected ~value ?separator () =
+        Alcotest.(check string) name expected (To_Test.stack_to_string ?separator value)
     
     let run_test { name; expected; value; separator } =
-        check_pp_stack ~name ~expected ~value ?separator ()
+        check_stack_to_string ~name ~expected ~value ?separator ()
 
     let test_empty_stack () =
         let tests: stack_test list = [
@@ -700,7 +700,7 @@ end
 
 
 let suites: unit Alcotest.test list = [
-    ("Utils/pp_value", [
+    ("Utils/value_to_string", [
         Alcotest.test_case "integers"                     `Quick TestPPValue.test_integers;
         Alcotest.test_case "booleans"                     `Quick TestPPValue.test_booleans;
         Alcotest.test_case "errors"                       `Quick TestPPValue.test_errors;
@@ -712,7 +712,7 @@ let suites: unit Alcotest.test list = [
         Alcotest.test_case "lorem ipsum (random case)"    `Quick TestPPValue.test_lorem_ipsum_random_case;
     ]);
 
-    ("Utils/pp_stack", [
+    ("Utils/stack_to_string", [
         Alcotest.test_case "empty stack"       `Quick TestPPStack.test_empty_stack;
         Alcotest.test_case "integers"          `Quick TestPPStack.test_integers;
         Alcotest.test_case "booleans"          `Quick TestPPStack.test_booleans;
