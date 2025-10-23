@@ -1,4 +1,4 @@
 (library
     (name interpreter)
     (public_name interpreter)
-    (libraries str))
+    (libraries str fmt))

@@ -25,6 +25,33 @@ let value_to_string = function
 
 
 
+(** [pp_value ppf v] pretty-prints a [value] to the formatter [ppf].
+
+    This is a utility function designed to pretty-print non-recursive values of
+    the type [Types.value] using the **`Fmt`** library. It's typically used for
+    debugging, logging, or generating human-readable output.
+
+    @param ppf The pretty-printing formatter to output to.
+    @param value The [Types.value] to pretty-print.
+
+    - [Types.Integer i] is printed as {"Integer(\%d)"} (e.g., "Integer(42)").
+    - [Types.Boolean b] is printed as {"Boolean(\%b)"} (e.g., "Boolean(true)").
+    - [Types.String s] is printed as {"String(\%a)"} using [Fmt.Dump.string]
+      for proper quoting (e.g., 'String("hello")').
+    - [Types.Name n] is printed as {"Name(\%a)"} using [Fmt.Dump.string] (e.g., 'Name("x")').
+    - [Types.Unit] is printed as {"Unit"}.
+    - [Types.Error] is printed as {"Error"}.
+*)
+let pp_value ppf = function
+    | Types.Integer i -> Fmt.pf ppf "Integer(%d)" i
+    | Types.Boolean b -> Fmt.pf ppf "Boolean(%b)" b
+    | Types.String  s -> Fmt.pf ppf "String(%a)" Fmt.Dump.string s
+    | Types.Name    n -> Fmt.pf ppf "Name(%a)" Fmt.Dump.string n
+    | Types.Unit      -> Fmt.string ppf "Unit"
+    | Types.Error     -> Fmt.string ppf "Error"
+
+
+
 (** [pp_stack ?separator stack] pretty-prints a [Types.stack] to a string.
 
     A utility function for converting a [stack] into a readable
