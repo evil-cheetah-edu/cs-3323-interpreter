@@ -3,10 +3,11 @@ open Test_common
 
 module To_Test = struct
     let value_to_string = Interpreter.Io.value_to_string
+    let pp_value = Interpreter.Io.pp_value
     let stack_to_string = Interpreter.Io.stack_to_string
 end
 
-module TestPPValue = struct
+module TestValueToString = struct
     let check_value_to_string ~name ~expected ~value =
         Alcotest.(check string) name expected (To_Test.value_to_string value)
 
@@ -164,7 +165,7 @@ module TestPPValue = struct
 end
 
 
-module TestPPStack = struct
+module TestStackToString = struct
     type stack_test = {
         name:      string;
         expected:  string;
@@ -437,24 +438,24 @@ end
 
 let suites: unit Alcotest.test list = [
     ("IO/value_to_string", [
-        Alcotest.test_case "integers"                     `Quick TestPPValue.test_integers;
-        Alcotest.test_case "booleans"                     `Quick TestPPValue.test_booleans;
-        Alcotest.test_case "errors"                       `Quick TestPPValue.test_errors;
-        Alcotest.test_case "unit"                         `Quick TestPPValue.test_unit;
-        Alcotest.test_case "one char strings (lowercase)" `Quick TestPPValue.test_one_char_strings_lowercase;
-        Alcotest.test_case "one char strings (uppercase)" `Quick TestPPValue.test_one_char_strings_uppercase;
-        Alcotest.test_case "pangram (lowercase)"          `Quick TestPPValue.test_pangram_lowercase;
-        Alcotest.test_case "pangram (uppercase)"          `Quick TestPPValue.test_pangram_uppercase;
-        Alcotest.test_case "lorem ipsum (random case)"    `Quick TestPPValue.test_lorem_ipsum_random_case;
+        Alcotest.test_case "integers"                     `Quick TestValueToString.test_integers;
+        Alcotest.test_case "booleans"                     `Quick TestValueToString.test_booleans;
+        Alcotest.test_case "errors"                       `Quick TestValueToString.test_errors;
+        Alcotest.test_case "unit"                         `Quick TestValueToString.test_unit;
+        Alcotest.test_case "one char strings (lowercase)" `Quick TestValueToString.test_one_char_strings_lowercase;
+        Alcotest.test_case "one char strings (uppercase)" `Quick TestValueToString.test_one_char_strings_uppercase;
+        Alcotest.test_case "pangram (lowercase)"          `Quick TestValueToString.test_pangram_lowercase;
+        Alcotest.test_case "pangram (uppercase)"          `Quick TestValueToString.test_pangram_uppercase;
+        Alcotest.test_case "lorem ipsum (random case)"    `Quick TestValueToString.test_lorem_ipsum_random_case;
     ]);
 
     ("IO/stack_to_string", [
-        Alcotest.test_case "empty stack"       `Quick TestPPStack.test_empty_stack;
-        Alcotest.test_case "integers"          `Quick TestPPStack.test_integers;
-        Alcotest.test_case "booleans"          `Quick TestPPStack.test_booleans;
-        Alcotest.test_case "strings"           `Quick TestPPStack.test_strings;
-        Alcotest.test_case "unit"              `Quick TestPPStack.test_unit;
-        Alcotest.test_case "errors"            `Quick TestPPStack.test_errors;
-        Alcotest.test_case "type combinations" `Quick TestPPStack.test_type_combinations;
+        Alcotest.test_case "empty stack"       `Quick TestStackToString.test_empty_stack;
+        Alcotest.test_case "integers"          `Quick TestStackToString.test_integers;
+        Alcotest.test_case "booleans"          `Quick TestStackToString.test_booleans;
+        Alcotest.test_case "strings"           `Quick TestStackToString.test_strings;
+        Alcotest.test_case "unit"              `Quick TestStackToString.test_unit;
+        Alcotest.test_case "errors"            `Quick TestStackToString.test_errors;
+        Alcotest.test_case "type combinations" `Quick TestStackToString.test_type_combinations;
     ]);
 ]
