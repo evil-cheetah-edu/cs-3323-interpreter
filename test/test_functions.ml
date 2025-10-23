@@ -51,22 +51,34 @@ module TestPush = struct
                 initial_state = []
             };
             {
-                name          = "should return `[Integer 0]`: with `push 0` on empty stack";
+                name          = "should return `[Integer 0]`: with `push -0` on empty stack";
                 expected      = [Integer 0];
                 value         = "-0";
                 initial_state = []
             };
             {
-                name          = "should return `[Error]`: with `push 2.5` on empty stack";
-                expected      = [Error];
-                value         = "2.5";
+                name          = "should return `[Integer 753]`: with `push 753` on empty stack";
+                expected      = [Integer 753];
+                value         = "753";
                 initial_state = []
             };
             {
-                name          = "should return `[Error]`: with `push -10.7` on empty stack";
-                expected      = [Error];
-                value         = "-10.7";
+                name          = "should return `[Error]`: with `push 1_000` on empty stack";
+                expected      = [Integer 1000];
+                value         = "1_000";
                 initial_state = []
+            };
+            {
+                name          = "should return `[Error]`: with `push -10_730` on empty stack";
+                expected      = [Integer (-10730)];
+                value         = "-10_730";
+                initial_state = []
+            };
+            {
+                name          = "should return `[Error, Error]`: with `push 4_433_114` on stack [Error]";
+                expected      = [Integer 4433114; Error];
+                value         = "4_433_114";
+                initial_state = [Error]
             };
 
             (* With Non-Empty Stack *)
@@ -77,16 +89,67 @@ module TestPush = struct
                 initial_state = [Integer 77]
             };
             {
-                name          = "should return `[Error, Error]`: with `push -132.5` on stack [Error]";
-                expected      = [Error; Error];
-                value         = "-132.5";
-                initial_state = [Error]
-            };
-            {
                 name          = {|should return `[Integer 343; String "Hello"]`: with `push 343` on stack [String "Hello"]|};
                 expected      = [Integer 343; String "Hello"];
                 value         = "343";
                 initial_state = [String "Hello"]
+            };
+            {
+                name          = {|should return `[Integer 202; String "Another"; Error]`: with `push 202` on stack [String "Another"; Error]|};
+                expected      = [Integer 202; String "Another"; Error];
+                value         = "202";
+                initial_state = [String "Another"; Error]
+            };
+        ]
+        in
+        List.iter run_test tests
+    
+    let test_invalid_integers () =
+        let tests: stack_test list = [
+            (* Invalid by Specs: Floats *)
+            {
+                name          = "should return `[Error]`: with `push 2.5001` on empty stack";
+                expected      = [Error];
+                value         = "2.5001";
+                initial_state = []
+            };
+            {
+                name          = "should return `[Error]`: with `push -10.7` on empty stack";
+                expected      = [Error];
+                value         = "-10.7";
+                initial_state = []
+            };
+            {
+                name          = "should return `[Error, Error]`: with `push -132.50` on stack [Error]";
+                expected      = [Error; Error];
+                value         = "-132.50";
+                initial_state = [Error]
+            };
+            {
+                name          = "should return `[Error, Error]`: with `push -777.510` on stack [Error]";
+                expected      = [Error; Error];
+                value         = "-777.510";
+                initial_state = [Error]
+            };
+
+            (* Invalid: Scientific Notation *)
+            {
+                name          = "should return `[Error]`: with `push 1.23e10` on empty stack";
+                expected      = [Error];
+                value         = "1.23e10";
+                initial_state = []
+            };
+            {
+                name          = "should return `[Error]`: with `push -9.81e-13` on empty stack";
+                expected      = [Error];
+                value         = "-9.81e-13";
+                initial_state = []
+            };
+            {
+                name          = "should return `[Error, Error]`: with `push 9.99e+53` on stack [Error]";
+                expected      = [Error; Error];
+                value         = "9.99e+53";
+                initial_state = [Error]
             };
         ]
         in
@@ -143,6 +206,118 @@ module TestPush = struct
         in
         List.iter run_test tests
     
+    let test_invalid_booleans () =
+        let tests: stack_test list = [
+            (* Not Fully Wrapped with `:` *)
+            {
+                name          = "should return `[Error]`: with `push :true` on empty stack";
+                expected      = [Error];
+                value         = ":true";
+                initial_state = []
+            };
+            {
+                name          = "should return `[Error]`: with `push true:` on empty stack";
+                expected      = [Error];
+                value         = "true:";
+                initial_state = []
+            };
+            {
+                name          = "should return `[Error]`: with `push :false` on empty stack";
+                expected      = [Error];
+                value         = ":false";
+                initial_state = []
+            };
+            {
+                name          = "should return `[Error]`: with `push false:` on empty stack";
+                expected      = [Error];
+                value         = "false:";
+                initial_state = []
+            };
+
+            (* Invalid by Specs: Title Case *)
+            {
+                name          = "should return `[Error]`: with `push :True:` on empty stack";
+                expected      = [Error];
+                value         = ":True:";
+                initial_state = []
+            };
+            {
+                name          = "should return `[Error]`: with `push :True:` on empty stack";
+                expected      = [Error];
+                value         = ":True:";
+                initial_state = []
+            };
+            {
+                name          = "should return `[Error]`: with `push :False:` on empty stack";
+                expected      = [Error];
+                value         = ":False:";
+                initial_state = []
+            };
+            {
+                name          = "should return `[Error]`: with `push :False:` on empty stack";
+                expected      = [Error];
+                value         = ":False:";
+                initial_state = []
+            };
+
+            (* Invalid by Specs: Uppercase *)
+            {
+                name          = "should return `[Error]`: with `push :TRUE:` on empty stack";
+                expected      = [Error];
+                value         = ":TRUE:";
+                initial_state = []
+            };
+            {
+                name          = "should return `[Error]`: with `push :FALSE:` on empty stack";
+                expected      = [Error];
+                value         = ":FALSE:";
+                initial_state = []
+            };
+
+            (* Invalid by Specs: Numeric Values *)
+            {
+                name          = "should return `[Error]`: with `push :1:` on empty stack";
+                expected      = [Error];
+                value         = ":1:";
+                initial_state = []
+            };
+            {
+                name          = "should return `[Error]`: with `push :0:` on empty stack";
+                expected      = [Error];
+                value         = ":0:";
+                initial_state = []
+            };
+
+            (* Invalid by Specs: Not Wrapped with `:` result in Name *)
+            {
+                name          = {|should return `[Name "True"]`: with `push True` on empty stack|};
+                expected      = [Name "True"];
+                value         = "True";
+                initial_state = []
+            };
+            {
+                name          = {|should return `[Name "False"]`: with `push False` on empty stack|};
+                expected      = [Name "False"];
+                value         = "False";
+                initial_state = []
+            };
+            {
+                name          = {|should return `[Name "true"]`: with `push true` on empty stack|};
+                expected      = [Name "true"];
+                value         = "true";
+                initial_state = []
+            };
+            {
+                name          = {|should return `[Name false]`: with `push false` on empty stack|};
+                expected      = [Name "false"];
+                value         = "false";
+                initial_state = []
+            };
+        ]
+        in
+        List.iter run_test tests
+
+
     let test_strings () =
         let tests: stack_test list = [
             (* With Empty Stack *)
@@ -180,6 +355,31 @@ module TestPush = struct
                 expected      = [String "false"; Unit; Error];
                 value         = {|"false"|};
                 initial_state = [Unit; Error]
+            };
+        ]
+        in
+        List.iter run_test tests
+
+    let test_invalid_strings () =
+        let tests: stack_test list = [
+            (* Not Fully Wrapped with {| " |} *)
+            {
+                name          = {|should return `[Error]`: with `push "Hello World` on empty stack|};
+                expected      = [Error];
+                value         = {|"Hello World|};
+                initial_state = []
+            };
+            {
+                name          = {|should return `[Error]`: with `push Hello World"` on empty stack|};
+                expected      = [Error];
+                value         = {|Hello World"|};
+                initial_state = []
+            };
+            {
+                name          = {|should return `[Error]`: with `push Hello World` on empty stack|};
+                expected      = [Error];
+                value         = {|Hello World|};
+                initial_state = []
             };
         ]
         in
@@ -251,16 +451,200 @@ module TestPush = struct
         in
         List.iter run_test tests
 
+    let test_units () =
+        let tests: stack_test list = [
+            (* With Empty Stack *)
+            {
+                name          = {|should return `[Unit]`: with `push :unit:` on empty stack|};
+                expected      = [Unit];
+                value         = ":unit:";
+                initial_state = []
+            };
+
+            (* With Non-Empty Stack *)
+            {
+                name = (
+                    {|should return `[Name "__init__"; Error; Unit; String "Debug"]`: |} ^
+                    {|with `push __init__` on stack [String "there"]|}
+                );
+                expected      = [Name "__init__"; Error; Unit; String "Debug"];
+                value         = "__init__";
+                initial_state = [Error; Unit; String "Debug"]
+            };
+            {
+                name = (
+                    {|should return `[Name "_magic_"; Integer 8; Name "a"]`: |} ^
+                    {|with `push _magic_` on stack [String "there"]|}
+                );
+                expected      = [Name "_magic_"; Integer 8; Name "a"];
+                value         = "_magic_";
+                initial_state = [Integer 8; Name "a"]
+            };
+            {
+                name = (
+                    {|should return `[Name "var2"; Name "var1"; Name "var0"]`: |} ^
+                    {|with `push var1` on stack [Name "var1"; Name "var0"]|}
+                );
+                expected      = [Name "var2"; Name "var1"; Name "var0"];
+                value         = "var2";
+                initial_state = [Name "var1"; Name "var0"]
+            };
+        ]
+        in
+        List.iter run_test tests
+
+    let test_invalid_units () =
+        let tests: stack_test list = [
+            (* Not Fully Wrapped with `:` *)
+            {
+                name          = "should return `[Error]`: with `push :unit` on empty stack";
+                expected      = [Error];
+                value         = ":unit";
+                initial_state = []
+            };
+            {
+                name          = "should return `[Error]`: with `push unit:` on empty stack";
+                expected      = [Error];
+                value         = "unit:";
+                initial_state = []
+            };
+
+            (* Invalid by Specs: Title Case *)
+            {
+                name          = "should return `[Error]`: with `push :Unit:` on empty stack";
+                expected      = [Error];
+                value         = ":Unit:";
+                initial_state = []
+            };
+
+            (* Invalid by Specs: Uppercase *)
+            {
+                name          = "should return `[Error]`: with `push :UNIT:` on empty stack";
+                expected      = [Error];
+                value         = ":UNIT:";
+                initial_state = []
+            };
+
+
+            (* Invalid by Specs: Unit Notation (Empty Tuple) *)
+            {
+                name          = "should return `[Error]`: with `push ()` on empty stack";
+                expected      = [Error];
+                value         = "()";
+                initial_state = []
+            };
+            {
+                name          = "should return `[Error]`: with `push :():` on empty stack";
+                expected      = [Error];
+                value         = ":():";
+                initial_state = []
+            };
+
+            (* Invalid by Specs: Not Wrapped with `:` result in Name *)
+            {
+                name          = {|should return `[Name unit]`: with `push unit` on empty stack|};
+                expected      = [Name "unit"];
+                value         = "unit";
+                initial_state = []
+            };
+            {
+                name          = {|should return `[Name Unit]`: with `push Unit` on empty stack|};
+                expected      = [Name "Unit"];
+                value         = "Unit";
+                initial_state = []
+            };
+            {
+                name          = {|should return `[Name UNIT]`: with `push UNIT` on empty stack|};
+                expected      = [Name "UNIT"];
+                value         = "UNIT";
+                initial_state = []
+            };
+        ]
+        in
+        List.iter run_test tests
+
+    let test_errors () =
+        let tests: stack_test list = [
+            (* With Empty Stack *)
+            {
+                name          = "should return `[Error]`: with `push :error:` on empty stack";
+                expected      = [Error];
+                value         = ":error:";
+                initial_state = []
+            };
+
+            (* With Non-Empty Stack *)
+            {
+                name          = "should return `[Error; Boolean true]`: with `push :error:` on stack [Boolean true]";
+                expected      = [Error; Boolean true];
+                value         = ":error:";
+                initial_state = [Boolean true]
+            };
+            {
+                name          = {|should return `[Error; Name "Pittsburgh"]`: with `push :error:` on stack [Name "Pittsburgh"]|};
+                expected      = [Error; Name "Pittsburgh"];
+                value         = ":error:";
+                initial_state = [Name "Pittsburgh"]
+            };
+            {
+                name          = "should return `[Error; Unit; Unit; Error]`: with `push :error:` on stack [Unit; Unit; Error]";
+                expected      = [Error; Unit; Unit; Error];
+                value         = ":error:";
+                initial_state = [Unit; Unit; Error]
+            };
+        ]
+        in
+        List.iter run_test tests
+
+    let test_errors () =
+        let tests: stack_test list = [
+            (* With Empty Stack *)
+            {
+                name          = "should return `[Error]`: with `push :error:` on empty stack";
+                expected      = [Error];
+                value         = ":error:";
+                initial_state = []
+            };
+
+            (* With Non-Empty Stack *)
+            {
+                name          = "should return `[Error; Boolean true]`: with `push :error:` on stack [Boolean true]";
+                expected      = [Error; Boolean true];
+                value         = ":error:";
+                initial_state = [Boolean true]
+            };
+            {
+                name          = {|should return `[Error; Name "Pittsburgh"]`: with `push :error:` on stack [Name "Pittsburgh"]|};
+                expected      = [Error; Name "Pittsburgh"];
+                value         = ":error:";
+                initial_state = [Name "Pittsburgh"]
+            };
+            {
+                name          = "should return `[Error; Unit; Unit; Error]`: with `push :error:` on stack [Unit; Unit; Error]";
+                expected      = [Error; Unit; Unit; Error];
+                value         = ":error:";
+                initial_state = [Unit; Unit; Error]
+            };
+        ]
+        in
+        List.iter run_test tests
+
     let assignment_provided_tests () = ()
 end
 
 
 let suites: unit Alcotest.test list = [
     ("Functions/push", [
-        Alcotest.test_case "integers" `Quick TestPush.test_integers;
-        Alcotest.test_case "booleans" `Quick TestPush.test_booleans;
-        Alcotest.test_case "strings"  `Quick TestPush.test_strings;
-        Alcotest.test_case "names"    `Quick TestPush.test_names;
+        Alcotest.test_case "integers (valid)"   `Quick TestPush.test_integers;
+        Alcotest.test_case "integers (invalid)" `Quick TestPush.test_invalid_integers;
+        Alcotest.test_case "booleans (valid)"   `Quick TestPush.test_booleans;
+        Alcotest.test_case "booleans (invalid)" `Quick TestPush.test_invalid_booleans;
+        Alcotest.test_case "strings"            `Quick TestPush.test_strings;
+        Alcotest.test_case "strings (invalid)"  `Quick TestPush.test_invalid_strings;
+        Alcotest.test_case "names"              `Quick TestPush.test_names;
+        Alcotest.test_case "units (valid)"      `Quick TestPush.test_units;
+        Alcotest.test_case "units (invalid)"    `Quick TestPush.test_invalid_units;
+        Alcotest.test_case "errors"             `Quick TestPush.test_errors;
     ]);
 
     ("Functions/pop", [
