@@ -3,6 +3,7 @@
     (libraries interpreter alcotest)
     (modules
         test_functions
+        test_io
         test_math
         test_runner
         test_utils
