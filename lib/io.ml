@@ -69,3 +69,15 @@ let rec stack_to_string ?(separator = " ") = function
     | []           -> ""
     | [ head ]     -> value_to_string head
     | head :: tail -> value_to_string head ^ separator ^ stack_to_string ~separator tail
+
+
+
+(** [pp_stack ppf s] pretty-prints a [stack] to the formatter [ppf].
+
+    This is a utility function designed to pretty-print a [stack] using
+    the {Fmt} library.
+
+    @param ppf The pretty-printing formatter to output to.
+    @param stack The [stack] to pretty-print.
+*)
+let pp_stack = Fmt.Dump.list pp_value
