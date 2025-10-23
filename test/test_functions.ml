@@ -83,7 +83,7 @@ module TestPush = struct
                 initial_state = [Error]
             };
             {
-                name          = "should return `[Integer 343; String \"Hello\"]`: with `push 343` on stack [String \"Hello\"]";
+                name          = {|should return `[Integer 343; String "Hello"]`: with `push 343` on stack [String "Hello"]|};
                 expected      = [Integer 343; String "Hello"];
                 value         = "343";
                 initial_state = [String "Hello"]
@@ -147,38 +147,38 @@ module TestPush = struct
         let tests: stack_test list = [
             (* With Empty Stack *)
             {
-                name          = "should return `[String \"something\"]`: with `push \"something\"` on empty stack";
+                name          = {|should return `[String "something"]`: with `push "something"` on empty stack|};
                 expected      = [String "something"];
-                value         = "\"something\"";
+                value         = {|"something"|};
                 initial_state = []
             };
             {
                 name = (
-                    "should return `[String \"pneumonoultramicroscopicsilicovolcanoconiosis\"]`: " ^
-                    "with `push \"pneumonoultramicroscopicsilicovolcanoconiosis\"` on empty stack"
+                    {|should return `[String "pneumonoultramicroscopicsilicovolcanoconiosis"]`: |} ^
+                    {|with `push "pneumonoultramicroscopicsilicovolcanoconiosis"` on empty stack|}
                 );
                 expected      = [String "pneumonoultramicroscopicsilicovolcanoconiosis"];
-                value         = "\"pneumonoultramicroscopicsilicovolcanoconiosis\"";
+                value         = {|"pneumonoultramicroscopicsilicovolcanoconiosis"|};
                 initial_state = []
             };
 
             (* With Non-Empty Stack *)
             {
-                name          = "should return `[String \"Hello\"; String \"there\"]`: with `push \"there\"` on stack [String \"there\"]";
+                name          = {|should return `[String "Hello"; String "there"]`: with `push "there"` on stack [String "there"]|};
                 expected      = [String "Hello"; String "there"];
-                value         = "\"Hello\"";
+                value         = {|"Hello"|};
                 initial_state = [String "there"]
             };
             {
-                name          = "should return `[String \"This is \"; Boolean false]`: with `push \"This is \"` on stack [Boolean false]";
+                name          = {|should return `[String "This is "; Boolean false]`: with `push "This is "` on stack [Boolean false]|};
                 expected      = [String "This is "; Boolean false];
-                value         = "\"This is \"";
+                value         = {|"This is "|};
                 initial_state = [Boolean false]
             };
             {
-                name          = "should return `[String \"false\"; Unit; Error]`: with `push \"false\"` on stack [Unit; Error]";
+                name          = {|should return `[String "false"; Unit; Error]`: with `push "false"` on stack [Unit; Error]|};
                 expected      = [String "false"; Unit; Error];
-                value         = "\"false\"";
+                value         = {|"false"|};
                 initial_state = [Unit; Error]
             };
         ]
@@ -189,31 +189,31 @@ module TestPush = struct
         let tests: stack_test list = [
             (* With Empty Stack *)
             {
-                name          = "should return `[Name \"x\"]`: with `push x` on empty stack";
+                name          = {|should return `[Name "x"]`: with `push x` on empty stack|};
                 expected      = [Name "x"];
                 value         = "x";
                 initial_state = []
             };
             {
-                name          = {||"should return `[Name "alpha"]`: with `push alpha` on empty stack|};
+                name          = {|"should return `[Name "alpha"]`: with `push alpha` on empty stack|};
                 expected      = [Name "alpha"];
                 value         = "alpha";
                 initial_state = []
             };
             {
-                name          = {||"should return `[Name "omega3"]`: with `push omega3` on empty stack|};
+                name          = {|"should return `[Name "omega3"]`: with `push omega3` on empty stack|};
                 expected      = [Name "omega3"];
                 value         = "omega3";
                 initial_state = []
             };
             {
-                name          = {||"should return `[Name "b6"]`: with `push b6` on empty stack|};
+                name          = {|"should return `[Name "b6"]`: with `push b6` on empty stack|};
                 expected      = [Name "b6"];
                 value         = "b6";
                 initial_state = []
             };
             {
-                name          = {||"should return `[Name "undefined_behavior"]`: with `push undefined_behavior` on empty stack|};
+                name          = {|"should return `[Name "undefined_behavior"]`: with `push undefined_behavior` on empty stack|};
                 expected      = [Name "undefined_behavior"];
                 value         = "undefined_behavior";
                 initial_state = []

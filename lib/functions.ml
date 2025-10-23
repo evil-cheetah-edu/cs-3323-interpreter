@@ -20,8 +20,8 @@ let push (argument: string) (stack: Types.stack): Types.stack =
     | ":unit:"  ->          (Types.Unit) :: stack
 
     | _ when String.length argument >= 2
-        && String.starts_with ~prefix:"\"" argument
-        && String.ends_with   ~suffix:"\"" argument ->
+        && String.starts_with ~prefix:{|"|} argument
+        && String.ends_with   ~suffix:{|"|} argument ->
             (Types.String (String.sub argument 1 (String.length argument - 2))) :: stack
 
     (* TODO(eugene): avoid double parsing *)
