@@ -13,3 +13,5 @@ let eq_stack (left: T.stack) (right: T.stack) =
 type 'a initial_stack_state = {
     initial_state: T.stack;
 }
+
+let empty_stack = []

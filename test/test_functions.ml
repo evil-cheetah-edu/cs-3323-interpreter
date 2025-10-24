@@ -5,9 +5,6 @@ module Utils = Interpreter.Utils
 module IO = Interpreter.Io
 
 
-let empty_stack = []
-
-
 module To_Test = struct
     let push = Interpreter.Functions.push
     let pop = Interpreter.Functions.pop
@@ -25,6 +22,10 @@ module TestPush = struct
     let check_push ~name ~expected ~value ~initial_state =
         Alcotest.(check (Alcotest.testable IO.pp_stack eq_stack))
             name expected (To_Test.push value initial_state)
+
+    let check_empty ~name ~value =
+        Alcotest.(check (Alcotest.testable IO.pp_stack eq_stack))
+        name empty_stack value
     
     let run_test { name; expected; value; initial_state } =
         check_push ~name ~expected ~value ~initial_state
@@ -596,55 +597,267 @@ module TestPush = struct
         in
         List.iter run_test tests
 
-    let test_errors () =
-        let tests: stack_test list = [
-            (* With Empty Stack *)
-            {
-                name          = "should return `[Error]`: with `push :error:` on empty stack";
-                expected      = [Error];
-                value         = ":error:";
-                initial_state = []
-            };
+    let assignment_spec_examples () =
+        (* Spec Test 1: 4.1.1 - Pushing Integers to the Stack - Pushing Integers *)
+        let () =
+            (* 0. Initialize state *)
+            let current_stack = ref [] in
 
-            (* With Non-Empty Stack *)
-            {
-                name          = "should return `[Error; Boolean true]`: with `push :error:` on stack [Boolean true]";
-                expected      = [Error; Boolean true];
-                value         = ":error:";
-                initial_state = [Boolean true]
-            };
-            {
-                name          = {|should return `[Error; Name "Pittsburgh"]`: with `push :error:` on stack [Name "Pittsburgh"]|};
-                expected      = [Error; Name "Pittsburgh"];
-                value         = ":error:";
-                initial_state = [Name "Pittsburgh"]
-            };
-            {
-                name          = "should return `[Error; Unit; Unit; Error]`: with `push :error:` on stack [Unit; Unit; Error]";
-                expected      = [Error; Unit; Unit; Error];
-                value         = ":error:";
-                initial_state = [Unit; Unit; Error]
-            };
-        ]
+            (* 1. Check if current stack is empty *)
+            check_empty ~name:"Spec Test 1: initial stack should be empty" ~value:!current_stack;
+
+            (* 2. Check Push with value "5"; current stack [] *)
+            let int_input = "5" in
+            let expected = [T.Integer 5] in
+            check_push
+                ~name:"Spec Test 1: should push Integer 5 on stack []"
+                ~expected
+                ~value:int_input
+                ~initial_state:!current_stack;
+            current_stack := To_Test.push int_input !current_stack;
+
+            (* 3. Check push with value "-0"; current stack [Integer 5] *)
+            let int_input = "-0" in
+            let expected = [T.Integer 0; T.Integer 5] in
+            check_push
+                ~name:"Spec Test 1: should push Integer -0 on stack [Integer 5]"
+                ~expected
+                ~value:int_input
+                ~initial_state:!current_stack;
+            current_stack := To_Test.push int_input !current_stack;
         in
-        List.iter run_test tests
 
-    let assignment_provided_tests () = ()
+        (* Spec Test 2: 4.1.2 - Pushing Strings to the Stack - Regular Strings *)
+        let () =
+            (* 0. Initialize state *)
+            let current_stack = ref [] in
+
+            (* 1. Check if current stack is empty *)
+            check_empty ~name:"Spec Test 2: initial stack should be empty" ~value:!current_stack;
+
+            (* 2. Check Push with value '"deadpool"'; current stack [] *)
+            let string_input = {|"deadpool"|} in
+            let expected = [T.String "deadpool"] in
+            check_push
+                ~name:{|Spec Test 2: should push String "deadpool" on stack []|}
+                ~expected
+                ~value:string_input
+                ~initial_state:!current_stack;
+            current_stack := To_Test.push string_input !current_stack;
+
+            (* 3. Check push with value '"batman"'; current stack [String "deadpool"] *)
+            let string_input = {|"batman"|} in
+            let expected = [T.String "batman"; T.String "deadpool"] in
+            check_push
+                ~name:{|Spec Test 2: should push String "batman" on stack [String "deadpool"]|}
+                ~expected
+                ~value:string_input
+                ~initial_state:!current_stack;
+            current_stack := To_Test.push string_input !current_stack;
+
+            (* 4. Check push with value '"this is a string"'; current stack [String "batman"; String "deadpool"] *)
+            let string_input = {|"this is a string"|} in
+            let expected = [T.String "this is a string"; T.String "batman"; T.String "deadpool"] in
+            check_push
+                ~name:{|Spec Test 2: should push String "this is a string" on stack [String "batman"; String "deadpool"]|}
+                ~expected
+                ~value:string_input
+                ~initial_state:!current_stack;
+            current_stack := To_Test.push string_input !current_stack;
+        in
+
+        (* Spec Test 3: 4.1.2 - Pushing Strings to the Stack - Strings with Leading or Trailing Spaces *)
+        let () =
+            (* 0. Initialize state *)
+            let current_stack = ref [] in
+
+            (* 1. Check if current stack is empty *)
+            check_empty ~name:"Spec Test 3: initial stack should be empty" ~value:!current_stack;
+
+            (* 2. Check Push with value '" deadp ool "'; current stack [] *)
+            let string_input = {|" deadp ool "|} in
+            let expected = [T.String " deadp ool "] in
+            check_push
+                ~name:{|Spec Test 3: should push String " deadp ool " on stack []|}
+                ~expected
+                ~value:string_input
+                ~initial_state:!current_stack;
+            current_stack := To_Test.push string_input !current_stack;
+
+            (* 3. Check push with value '"this is a string  "'; current stack [String " deadp ool "] *)
+            let string_input = {|"this is a string  "|} in
+            let expected = [T.String "this is a string  "; T.String " deadp ool "] in
+            check_push
+                ~name:{|Spec Test 3: should push String "this is a string  " on stack [String " deadp ool "]|}
+                ~expected
+                ~value:string_input
+                ~initial_state:!current_stack;
+            current_stack := To_Test.push string_input !current_stack;
+        in
+
+        (* Spec Test 4: 4.2 Pushing Names to the Stack - Example 1 *)
+        let () =
+            (* 0. Initialize state *)
+            let current_stack = ref [] in
+
+            (* 1. Check if current stack is empty *)
+            check_empty ~name:"Spec Test 4: initial stack should be empty" ~value:!current_stack;
+
+            (* 2. Check Push with value "a"; current stack [] *)
+            let name_input = "a" in
+            let expected = [T.Name "a"] in
+            check_push
+                ~name:{|Spec Test 4: should push Name "a" on stack []|}
+                ~expected
+                ~value:name_input
+                ~initial_state:!current_stack;
+            current_stack := To_Test.push name_input !current_stack;
+
+            (* 3. Check Push with value "13"; current stack [Name "a"] *)
+            let int_input = "13" in
+            let expected = [T.Integer 13; T.Name "a"] in
+            check_push
+                ~name:{|Spec Test 4: should push Integer "13" on stack [Name "a"]|}
+                ~expected
+                ~value:int_input
+                ~initial_state:!current_stack;
+            current_stack := To_Test.push int_input !current_stack;
+        in
+
+        (* Spec Test 5: 4.2 Pushing Names to the Stack - Example 2 *)
+        let () =
+            (* 0. Initialize state *)
+            let current_stack = ref [] in
+
+            (* 1. Check if current stack is empty *)
+            check_empty ~name:"Spec Test 5: initial stack should be empty" ~value:!current_stack;
+
+            (* 2. Check Push with value "__name1__"; current stack [] *)
+            let name_input = "__name1__" in
+            let expected = [T.Name "__name1__"] in
+            check_push
+                ~name:{|Spec Test 5: should push Name "__name1__" on stack []|}
+                ~expected
+                ~value:name_input
+                ~initial_state:!current_stack;
+            current_stack := To_Test.push name_input !current_stack;
+
+            (* 3. Check Push with value "3"; current stack [Name "__name1__"] *)
+            let int_input = "3" in
+            let expected = [T.Integer 3; T.Name "__name1__"] in
+            check_push
+                ~name:{|Spec Test 5: should push Integer "3" on stack [Name "__name1__"]|}
+                ~expected
+                ~value:int_input
+                ~initial_state:!current_stack;
+            current_stack := To_Test.push int_input !current_stack;
+        in
+
+        (* Spec Test 6: 4.3 booleans - Example with :true: *)
+        let () =
+            (* 0. Initialize state *)
+            let current_stack = ref [] in
+
+            (* 1. Check if current stack is empty *)
+            check_empty ~name:"Spec Test 6: initial stack should be empty" ~value:!current_stack;
+
+            (* 2. Check Push with value "5"; current stack [] *)
+            let int_input = "5" in
+            let expected = [T.Integer 5] in
+            check_push
+                ~name:{|Spec Test 6: should push Integer 5 on stack []|}
+                ~expected
+                ~value:int_input
+                ~initial_state:!current_stack;
+            current_stack := To_Test.push int_input !current_stack;
+
+            (* 3. Check Push with value "3"; current stack [Integer 5] *)
+            let bool_input = ":true:" in
+            let expected = [T.Boolean true; T.Integer 5] in
+            check_push
+                ~name:{|Spec Test 6: should push Boolean true on stack [Integer 5]|}
+                ~expected
+                ~value:bool_input
+                ~initial_state:!current_stack;
+            current_stack := To_Test.push bool_input !current_stack;
+        in
+
+        (* Spec Test 7: 4.4 error and unit - Example with multiple :error: and :unit: *)
+        let () =
+            (* 0. Initialize state *)
+            let current_stack = ref [] in
+
+            (* 1. Check if current stack is empty *)
+            check_empty ~name:"Spec Test 7: initial stack should be empty" ~value:!current_stack;
+
+            (* 2. Check Push with value ":error:"; current stack [] *)
+            let error_input = ":error" in
+            let expected = [T.Error] in
+            check_push
+                ~name:"Spec Test 7: should push Error on stack []"
+                ~expected
+                ~value:error_input
+                ~initial_state:!current_stack;
+            current_stack := To_Test.push error_input !current_stack;
+
+            (* 3. Check Push with value ":unit:"; current stack [Error] *)
+            let unit_input = ":unit:" in
+            let expected = [T.Unit; T.Error] in
+            check_push
+                ~name:"Spec Test 7: should push Unit on stack [Error]"
+                ~expected
+                ~value:unit_input
+                ~initial_state:!current_stack;
+            current_stack := To_Test.push unit_input !current_stack;
+
+            (* 4. Check Push with value ":error:"; current stack [Unit; Error] *)
+            let error_input = ":error" in
+            let expected = [T.Error; T.Unit; T.Error] in
+            check_push
+                ~name:"Spec Test 7: should push Error on stack [Unit; Error]"
+                ~expected
+                ~value:error_input
+                ~initial_state:!current_stack;
+            current_stack := To_Test.push error_input !current_stack;
+
+            (* 5. Check Push with value ":unit:"; current stack [Error; Unit; Error] *)
+            let unit_input = ":unit:" in
+            let expected = [T.Unit; T.Error; T.Unit; T.Error] in
+            check_push
+                ~name:"Spec Test 7: should push Unit on stack [Error; Unit; Error]"
+                ~expected
+                ~value:unit_input
+                ~initial_state:!current_stack;
+            current_stack := To_Test.push unit_input !current_stack;
+
+            (* 6. Check Push with value ":unit:"; current stack [Unit; Error; Unit; Error] *)
+            let unit_input = ":unit:" in
+            let expected = [T.Unit; T.Unit; T.Error; T.Unit; T.Error] in
+            check_push
+                ~name:"Spec Test 7: should push Unit on stack [Unit; Error; Unit; Error]"
+                ~expected
+                ~value:unit_input
+                ~initial_state:!current_stack;
+            current_stack := To_Test.push unit_input !current_stack;
+        in
+        
+        ()
 end
 
 
 let suites: unit Alcotest.test list = [
     ("Functions/push", [
-        Alcotest.test_case "integers (valid)"   `Quick TestPush.test_integers;
-        Alcotest.test_case "integers (invalid)" `Quick TestPush.test_invalid_integers;
-        Alcotest.test_case "booleans (valid)"   `Quick TestPush.test_booleans;
-        Alcotest.test_case "booleans (invalid)" `Quick TestPush.test_invalid_booleans;
-        Alcotest.test_case "strings"            `Quick TestPush.test_strings;
-        Alcotest.test_case "strings (invalid)"  `Quick TestPush.test_invalid_strings;
-        Alcotest.test_case "names"              `Quick TestPush.test_names;
-        Alcotest.test_case "units (valid)"      `Quick TestPush.test_units;
-        Alcotest.test_case "units (invalid)"    `Quick TestPush.test_invalid_units;
-        Alcotest.test_case "errors"             `Quick TestPush.test_errors;
+        Alcotest.test_case "integers (valid)"          `Quick TestPush.test_integers;
+        Alcotest.test_case "integers (invalid)"        `Quick TestPush.test_invalid_integers;
+        Alcotest.test_case "booleans (valid)"          `Quick TestPush.test_booleans;
+        Alcotest.test_case "booleans (invalid)"        `Quick TestPush.test_invalid_booleans;
+        Alcotest.test_case "strings"                   `Quick TestPush.test_strings;
+        Alcotest.test_case "strings (invalid)"         `Quick TestPush.test_invalid_strings;
+        Alcotest.test_case "names"                     `Quick TestPush.test_names;
+        Alcotest.test_case "units (valid)"             `Quick TestPush.test_units;
+        Alcotest.test_case "units (invalid)"           `Quick TestPush.test_invalid_units;
+        Alcotest.test_case "errors"                    `Quick TestPush.test_errors;
+        Alcotest.test_case "assignment provided tests" `Quick TestPush.assignment_spec_examples
     ]);
 
     ("Functions/pop", [
