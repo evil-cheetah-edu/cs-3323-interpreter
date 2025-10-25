@@ -1,10 +1,6 @@
 open Test_common
 
 
-module Utils = Interpreter.Utils
-module IO = Interpreter.Io
-
-
 module To_Test = struct
     let push = Interpreter.Functions.push
     let pop = Interpreter.Functions.pop
@@ -22,10 +18,6 @@ module TestPush = struct
     let check_push ~name ~expected ~value ~initial_state =
         Alcotest.(check (Alcotest.testable IO.pp_stack eq_stack))
             name expected (To_Test.push value initial_state)
-
-    let check_empty ~name ~value =
-        Alcotest.(check (Alcotest.testable IO.pp_stack eq_stack))
-        name empty_stack value
     
     let run_test { name; expected; value; initial_state } =
         check_push ~name ~expected ~value ~initial_state
@@ -857,10 +849,10 @@ let suites: unit Alcotest.test list = [
         Alcotest.test_case "units (valid)"             `Quick TestPush.test_units;
         Alcotest.test_case "units (invalid)"           `Quick TestPush.test_invalid_units;
         Alcotest.test_case "errors"                    `Quick TestPush.test_errors;
-        Alcotest.test_case "assignment provided tests" `Quick TestPush.assignment_spec_examples
+        Alcotest.test_case "assignment spec examples"  `Quick TestPush.assignment_spec_examples
     ]);
 
     ("Functions/pop", [
-        
+
     ]);
 ]
