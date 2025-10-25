@@ -31,3 +31,9 @@ let empty_stack: T.stack = []
 let check_empty ~name ~value =
     Alcotest.(check (Alcotest.testable IO.pp_stack eq_stack))
         name empty_stack value
+
+(** Checks if the provided [value] (a stack) is equal to [expected] (a stack).
+    The test is named using [name]. *)
+let check_equal ~name ~expected ~value =
+    Alcotest.(check (Alcotest.testable IO.pp_stack eq_stack))
+        name expected value

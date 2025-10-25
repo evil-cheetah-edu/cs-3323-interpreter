@@ -837,6 +837,272 @@ module TestPush = struct
 end
 
 
+module TestPop = struct
+    type stack_test = {
+        name:          string;
+        expected:      T.stack;
+        initial_state: T.stack
+    }
+
+    let check_push ~name ~expected ~initial_state =
+        Alcotest.(check (Alcotest.testable IO.pp_stack eq_stack))
+            name expected (To_Test.pop initial_state)
+
+    let run_test { name; expected; initial_state } =
+        check_push ~name ~expected ~initial_state
+
+    let test_integers () =
+        let tests: stack_test list = [
+            {
+                name          = "should return `[]`: with `pop` on stack [Integer 33]";
+                expected      = [];
+                initial_state = [Integer 33];
+            };
+            {
+                name          = "should return `[]`: with `pop` on stack [Integer -200]";
+                expected      = [];
+                initial_state = [Integer (-200)];
+            };
+            {
+                name          = "should return `[]`: with `pop` on stack [Integer 333]";
+                expected      = [];
+                initial_state = [Integer 333];
+            };
+            {
+                name          = "should return `[]`: with `pop` on stack [Integer 0]";
+                expected      = [];
+                initial_state = [Integer 0];
+            };
+            {
+                name          = "should return `[Error]`: with `pop` on stack [Integer 888; Error]";
+                expected      = [Error];
+                initial_state = [Integer 888; Error];
+            };
+            {
+                name          = "should return `[Unit; Error]`: with `pop` on stack [Integer 2153; Unit; Error]";
+                expected      = [Unit; Error];
+                initial_state = [Integer 2153; Unit; Error];
+            };
+            {
+                name          = "should return `[Boolean true]`: with `pop` on stack [Integer -999; Boolean true]";
+                expected      = [Boolean true];
+                initial_state = [Integer (-999); Boolean true];
+            };
+            {
+                name = (
+                    {|should return `[String "Hello"; String "World"]`: |} ^
+                    {|with `pop` on stack [Integer 1; String "Hello"; String "World"]|}
+                );
+                expected      = [String "Hello"; String "World"];
+                initial_state = [Integer 1; String "Hello"; String "World"];
+            };
+        ]
+        in
+        List.iter run_test tests
+    
+    let test_booleans () =
+        let tests: stack_test list = [
+            {
+                name          = "should return `[]`: with `pop` on stack [Boolean true]";
+                expected      = [];
+                initial_state = [Boolean true];
+            };
+            {
+                name          = "should return `[]`: with `pop` on stack [Boolean false]";
+                expected      = [];
+                initial_state = [Boolean false];
+            };
+            {
+                name          = "should return `[Boolean true]`: with `pop` on stack [Error; Boolean true]";
+                expected      = [Boolean true];
+                initial_state = [Error; Boolean true];
+            };
+            {
+                name = (
+                    "should return `[Unit; Boolean false; Error]`: " ^
+                    "with `pop` on stack [Unit; Unit; Boolean false; Error]"
+                );
+                expected      = [Unit; Boolean false; Error];
+                initial_state = [Unit; Unit; Boolean false; Error];
+            };
+            {
+                name          = "should return `[Integer -888]`: with `pop` on stack [Boolean true; Integer -888]";
+                expected      = [Integer (-888)];
+                initial_state = [Boolean true; Integer (-888)];
+            };
+            {
+                name = (
+                    {|should return `[String "Hello"; Error; Boolean false; String "World"]`: |} ^ 
+                    {|with `pop` on stack [Error; String "Hello"; Error; Boolean false; String "World"]|}
+                );
+                expected      = [String "Hello"; Error; Boolean false; String "World"];
+                initial_state = [Error; String "Hello"; Error; Boolean false; String "World"];
+            };
+        ]
+        in
+        List.iter run_test tests
+
+    let test_strings () =
+        let tests: stack_test list = [
+            {
+                name          = {|should return `[]`: with `pop` on stack [String "Hello"]|};
+                expected      = [];
+                initial_state = [String "Hello"];
+            };
+            {
+                name          = {|should return `[String "World"]`: with `pop` on stack [String "Hello"; String "World"]|};
+                expected      = [String "World"];
+                initial_state = [String "Hello"; String "World"];
+            };
+            {
+                name = (
+                    {|should return `[String ", "; String "how"; String "are"; String "you"; String "?"]`: |} ^
+                    {|with `pop` on stack [String "Hi"; String ", "; String "how"; String "are"; String "you"; String "?"]|}
+                );
+                expected      = [String ", "; String "how"; String "are"; String "you"; String "?"];
+                initial_state = [String "Hi"; String ", "; String "how"; String "are"; String "you"; String "?"];
+            };
+        ]
+        in
+        List.iter run_test tests
+
+    let test_names () =
+        let tests: stack_test list = [
+            {
+                name          = {|should return `[]`: with `pop` on stack [Name "x"]|};
+                expected      = [];
+                initial_state = [Name "x"];
+            };
+            {
+                name          = {|should return `[Name "x"]`: with `pop` on stack [Name "y"; Name "x"]|};
+                expected      = [Name "x"];
+                initial_state = [Name "y"; Name "x"];
+            };
+            {
+                name = (
+                    {|should return `[Name "var1"; Name "m_State"; Name "g_VAR"]`: |} ^
+                    {|with `pop` on stack [Name "list"; Name "var1"; Name "m_State"; Name "g_VAR"]|}
+                );
+                expected      = [Name "var1"; Name "m_State"; Name "g_VAR"];
+                initial_state = [Name "list"; Name "var1"; Name "m_State"; Name "g_VAR"];
+            };
+        ]
+        in
+        List.iter run_test tests
+
+    let test_units () =
+        let tests: stack_test list = [
+            {
+                name          = {|should return `[]`: with `pop` on stack [Unit]|};
+                expected      = [];
+                initial_state = [Unit];
+            };
+            {
+                name          = {|should return `[Unit]`: with `pop` on stack [Unit; Unit]|};
+                expected      = [Unit];
+                initial_state = [Unit; Unit];
+            };
+            {
+                name          = {|should return `[Unit; Unit]`: with `pop` on stack [Unit; Unit; Unit]|};
+                expected      = [Unit; Unit];
+                initial_state = [Unit; Unit; Unit];
+            };
+            {
+                name = (
+                    {|should return `[Unit; Unit; Unit; Unit]`: |} ^ 
+                    {|with `pop` on stack [Unit; Unit; Unit; Unit; Unit]|}
+                );
+                expected      = [Unit; Unit; Unit; Unit];
+                initial_state = [Unit; Unit; Unit; Unit; Unit];
+            };
+            {
+                name = (
+                    {|should return `[Unit; String "one"; Name "p_size_t"; Unit]`: |} ^
+                    {|with `pop` on stack [Unit; Unit; String "one"; Name "p_size_t"; Unit]|}
+                );
+                expected      = [Unit; String "one"; Name "p_size_t"; Unit];
+                initial_state = [Unit; Unit; String "one"; Name "p_size_t"; Unit];
+            };
+        ]
+        in
+        List.iter run_test tests
+
+    let test_errors () =
+        let tests: stack_test list = [
+            {
+                name          = {|should return `[]`: with `pop` on stack [Error]|};
+                expected      = [];
+                initial_state = [Error];
+            };
+            {
+                name          = {|should return `[Error]`: with `pop` on stack [Error; Error]|};
+                expected      = [Error];
+                initial_state = [Error; Error];
+            };
+            {
+                name          = {|should return `[Error; Error; Error]`: with `pop` on stack [Error; Error; Error; Error]|};
+                expected      = [Error; Error; Error];
+                initial_state = [Error; Error; Error; Error];
+            };
+            {
+                name = (
+                    {|should return `[Error; Error; Error; Error; Error; Error]`: |} ^ 
+                    {|with `pop` on stack [Error; Error; Error; Error; Error; Error; Error]|}
+                );
+                expected      = [Error; Error; Error; Error; Error; Error];
+                initial_state = [Error; Error; Error; Error; Error; Error; Error];
+            };
+            {
+                name = (
+                    {|should return `[Error; Name "my_var"; Error; Error; Unit]`: |} ^
+                    {|with `pop` on stack [Error; Error; Name "my_var"; Error; Error; Unit]|}
+                );
+                expected      = [Error; Name "my_var"; Error; Error; Unit];
+                initial_state = [Error; Error; Name "my_var"; Error; Error; Unit];
+            };
+        ]
+        in
+        List.iter run_test tests
+
+    let test_empty_stack () =
+        check_push ~name:"should return `[Error]`: with `pop` on stack [] (empty)"
+            ~expected:[Error]
+            ~initial_state:[]
+
+
+    let assignment_spec_examples () =
+        (* Spec Test 1: 4.5 - Using Pop on Stack - Error on empty stack *)
+        let () =
+            (* 0. Initialize state *)
+            let current_stack = ref [] in
+
+            (* 1. Check if current stack is empty *)
+            check_empty ~name:"Spec Test 1: initial stack should be empty" ~value:!current_stack;
+
+            (* 2. Push with value "5"; check if current stack is [Integer 5] *)
+            let int_input = "5" in
+            current_stack := To_Test.push int_input !current_stack;
+            let expected = [T.Integer 5] in
+            check_equal ~name:"Spec Test 1: should push Integer 5 on Stack []"
+                ~expected
+                ~value:!current_stack;
+
+            (* 3. Pop the top value; check if current stack is [] (empty) *)
+            current_stack := To_Test.pop !current_stack;
+            check_empty ~name:"Spec Test 1: should pop the top value; Stack should be []"
+                ~value:!current_stack;
+
+            (* 3. Pop an empty stack; check if current stack is [Error] *)
+            current_stack := To_Test.pop !current_stack;
+            let expected = [T.Error] in
+            check_equal ~name:"Spec Test 1: should pop the top value; Stack should be []"
+                ~expected
+                ~value:!current_stack;
+        in
+        ()
+end
+
+
 let suites: unit Alcotest.test list = [
     ("Functions/push", [
         Alcotest.test_case "integers (valid)"          `Quick TestPush.test_integers;
@@ -853,6 +1119,13 @@ let suites: unit Alcotest.test list = [
     ]);
 
     ("Functions/pop", [
-
+        Alcotest.test_case "integers"                 `Quick TestPop.test_integers;
+        Alcotest.test_case "booleans"                 `Quick TestPop.test_booleans;
+        Alcotest.test_case "strings"                  `Quick TestPop.test_strings;
+        Alcotest.test_case "names"                    `Quick TestPop.test_names;
+        Alcotest.test_case "units"                    `Quick TestPop.test_units;
+        Alcotest.test_case "errors"                   `Quick TestPop.test_errors;
+        Alcotest.test_case "empty stack"              `Quick TestPop.test_empty_stack;
+        Alcotest.test_case "assignment spec examples" `Quick TestPop.assignment_spec_examples;
     ]);
 ]
